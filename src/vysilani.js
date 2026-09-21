@@ -59,7 +59,38 @@ const fetchText = isNight
         return r.text();
       };
 
-const director = createDirector({ obvody: data.obvody, cooldownMs: isNight ? 25000 : 4 * 60 * 1000 });
+// Paměť vysílání: co už zaznělo, přežije restart stránky (jen u živého provozu; demo se neukládá, ať se zkoušky nemíchají s ostrým).
+// ?reset=1 paměť smaže. Starší než 20 hodin se zahazuje (noc voleb se vejde, druhé kolo o týden později začne načisto).
+const MEMORY_KEY = 'senat2026.vysilani.v1';
+const MEMORY_TTL_MS = 20 * 60 * 60 * 1000;
+if (params.get('reset')) {
+  try {
+    localStorage.removeItem(MEMORY_KEY);
+  } catch {
+    /* bez úložiště */
+  }
+}
+const memory = isDemo
+  ? null
+  : {
+      load() {
+        try {
+          const s = JSON.parse(localStorage.getItem(MEMORY_KEY) ?? 'null');
+          return s && Date.now() - s.savedAt < MEMORY_TTL_MS ? s : null;
+        } catch {
+          return null;
+        }
+      },
+      save(s) {
+        try {
+          localStorage.setItem(MEMORY_KEY, JSON.stringify(s));
+        } catch {
+          /* úložiště nemusí být dostupné, vysílání běží dál bez paměti */
+        }
+      },
+    };
+
+const director = createDirector({ obvody: data.obvody, cooldownMs: isNight ? 25000 : 4 * 60 * 1000, memory });
 
 function recompute() {
   state.resMap = new Map();

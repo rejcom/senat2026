@@ -285,3 +285,12 @@ export function commentRecapRunoff(items, part, parts) {
 export function commentOutro() {
   return out('outro', null, 'To jsou všechny výsledky. Děkujeme za sledování. Údaje zveřejňuje Český statistický úřad, závazné výsledky najdete na webu volby.gov.cz.');
 }
+
+/** Po restartu stránky: navázání místo úvodu. */
+export function commentResume() {
+  return out(
+    'intro',
+    null,
+    'Vysílání pokračuje. Sledujete neoficiální, automaticky vytvářený přehled dat Českého statistického úřadu. Závazné výsledky najdete na webu volby.gov.cz.',
+  );
+}

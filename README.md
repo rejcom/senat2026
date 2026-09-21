@@ -30,6 +30,9 @@ K výsledkům čte česky komentář, psaný na obrazovce i mluvený (Web Speech
   Jména a názvy obvodů jsou vždy v 1. pádu, aby se nic nezkomolilo skloňováním. Před vysloveným tvrzením se ověřuje, že pořád platí („těsný souboj“, „první čísla“).
 - **Priority (`src/director.js`):** rozhodnutí obvodu a postup do 2. kola mají vždy přednost, nezastarávají a čtou se celé. Pravidelně přijde souhrn s tabulkou výsledků,
   při velké frontě se oznámení zkrátí. Výpadek dat ČSÚ se ukáže žlutým pruhem, zobrazuje se poslední známý stav.
+- **Restart stránky:** co už zaznělo (oznámená rozhodnutí, „první čísla“, dokončené závěrečné shrnutí) si vysílání pamatuje v prohlížeči (localStorage).
+  Po obnovení nebo pádu řekne „Vysílání pokračuje“, ukáže přehled, znovu nic neoznamuje, ale dohlásí, co před pádem ještě nezaznělo. Opravené rozhodnutí ČSÚ se oznámí znovu.
+  Paměť starší než 20 hodin se zahazuje (druhé kolo začne načisto). `?reset=1` ji smaže, doporučeno před ostrým vysíláním, pokud jste stránku zkoušeli na živých datech. Demo (`?demo=…`) paměť nepoužívá.
 - **Zkouška:** `vysilani.html?demo=noc` přehraje celý večer za 10 minut (`&min=3` = 3 minuty), vše fiktivní a označené „DEMO“. `?demo=1|2|3` jsou statické fáze.
 - **Do LinkedIn Live:** stránku otevřít v Edge/Chrome a v OBS ji zachytit jako okno (zdroj „Zachytávání okna“) a zvuk počítače (zdroj „Zachytávání zvuku plochy“).
   LinkedIn Live vyžaduje povolení, streamovací nástroj (OBS / StreamYard / Restream) a předem naplánovanou událost, podmínky ověřte přímo na LinkedInu.

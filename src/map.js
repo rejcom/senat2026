@@ -232,5 +232,35 @@ export function createMap(container, { data, onHover, onLeave, onSelect }) {
     for (const [i, it] of items) if (it.active) it.path.classList.toggle('is-hover', i === id);
   }
 
-  return { update, setHover, zoomTo, zoomBy, reset, pragueIds: PRAGUE_IDS, element: svg };
+  /**
+   * Kopie mapy pro export do obrázku: celá ČR (bez zoomu a bez hover/výběru), značky přepočtené pro k = 1.
+   * Styly řeší export.js, tady se řeší jen geometrie.
+   */
+  function exportSvg() {
+    const clone = svg.cloneNode(true);
+    clone.removeAttribute('class');
+    clone.removeAttribute('role');
+    clone.removeAttribute('aria-label');
+    const cw = clone.firstChild;
+    cw.removeAttribute('transform');
+    clone.querySelectorAll('[tabindex]').forEach((n) => {
+      n.removeAttribute('tabindex');
+      n.removeAttribute('role');
+      n.removeAttribute('aria-label');
+    });
+    clone.querySelectorAll('.is-hover,.is-selected').forEach((n) => n.classList.remove('is-hover', 'is-selected'));
+    const markGroups = [...cw.children[2].children];
+    let i = 0;
+    for (const it of items.values()) {
+      if (!it.active) continue;
+      const g = markGroups[i++];
+      const px = Math.min(it.bbox.w, it.bbox.h);
+      g.setAttribute('transform', `translate(${it.center[0]},${it.center[1]})`);
+      g.style.display = px < 15 ? 'none' : '';
+      g.classList.toggle('marks--compact', px < Math.max(it.dotsWidth + 14, 34));
+    }
+    return { svg: clone, width: W, height: H };
+  }
+
+  return { update, setHover, zoomTo, zoomBy, reset, exportSvg, pragueIds: PRAGUE_IDS, element: svg };
 }

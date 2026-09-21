@@ -32,3 +32,11 @@ export const MODES = [
   { id: 'count', label: 'Počet kandidátů' },
   { id: 'age', label: 'Průměrný věk' },
 ];
+
+// Popis barev mapy podle režimu (legenda na stránce i v exportovaném obrázku)
+export const DESC = {
+  incumbent: 'Barva obvodu = strana, za kterou byl současný senátor zvolen. Tečky = kandidáti podle nominující strany.',
+  leader: 'Barva obvodu = strana vedoucího kandidáta (sytá barva = už zvolen). Tečky = kandidáti.',
+  count: 'Barva obvodu = počet kandidátů.',
+  age: 'Barva obvodu = průměrný věk kandidátů.',
+};

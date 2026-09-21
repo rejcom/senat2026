@@ -24,7 +24,10 @@
       <section class="card map-card" aria-labelledby="map-h">
         <div class="card-head">
           <h2 id="map-h">Mapa obvodů</h2>
-          <div id="modes" class="seg" role="group" aria-label="Zbarvení mapy"></div>
+          <div class="head-tools">
+            <div id="modes" class="seg" role="group" aria-label="Zbarvení mapy"></div>
+            <button type="button" class="btn-ghost" data-export="map" title="Stáhnout mapu jako obrázek 1200×627 (LinkedIn)">⬇ PNG</button>
+          </div>
         </div>
         <div class="map-wrap">
           <div id="map" class="map"></div>
@@ -43,15 +46,18 @@
 
     <section class="charts">
       <div class="card">
-        <div class="card-head"><h2>Věk kandidátů</h2></div>
+        <div class="card-head"><h2>Věk kandidátů</h2><button type="button" class="btn-ghost" data-export="age" title="Stáhnout graf jako obrázek 1200×627 (LinkedIn)">⬇ PNG</button></div>
         <div id="age-chart"></div>
       </div>
       <div class="card">
         <div class="card-head">
-          <h2>Kandidáti podle nominující strany</h2>
-          <button type="button" id="clear-party" class="link" hidden>zrušit filtr</button>
+          <h2>Kdo brání, kdo útočí</h2>
+          <div class="head-tools">
+            <button type="button" id="clear-party" class="link" hidden>zrušit filtr</button>
+            <button type="button" class="btn-ghost" data-export="battle" title="Stáhnout graf jako obrázek 1200×627 (LinkedIn)">⬇ PNG</button>
+          </div>
         </div>
-        <div id="party-bars" class="pbars"></div>
+        <div id="battle"></div>
       </div>
     </section>
 

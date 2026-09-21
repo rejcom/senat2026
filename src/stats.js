@@ -43,6 +43,41 @@ export function partyCounts(cands) {
   );
 }
 
+/**
+ * „Kdo brání, kdo útočí“ po stranách (skupinách barev):
+ *  held       – kolik z 27 mandátů v sázce strana drží (strana, za kterou byl senátor zvolen)
+ *  heldAgain  – z toho u kolika senátor znovu kandiduje za tutéž stranu
+ *  defenders  – kandidáti, kteří obhajují mandát (senátor kandiduje znovu)
+ *  challengers– ostatní kandidáti strany (vyzyvatelé)
+ */
+export function battleRows(obvody) {
+  const m = new Map();
+  const row = (p) => {
+    if (!m.has(p.key)) m.set(p.key, { key: p.key, short: p.short, color: p.color, held: 0, heldAgain: 0, defenders: 0, challengers: 0 });
+    return m.get(p.key);
+  };
+  for (const o of obvody) {
+    const def = o.candidates.find((c) => c.defends);
+    if (o.incumbent) {
+      const r = row(o.incumbent.party);
+      r.held++;
+      if (def && def.party.key === o.incumbent.party.key) r.heldAgain++;
+    }
+    for (const c of o.candidates) {
+      const r = row(c.party);
+      if (c.defends) r.defenders++;
+      else r.challengers++;
+    }
+  }
+  const tail = { OTHER: 2, IND: 1 };
+  return [...m.values()]
+    .map((r) => ({ ...r, candidates: r.defenders + r.challengers }))
+    .sort(
+      (a, b) =>
+        (tail[a.key] ?? 0) - (tail[b.key] ?? 0) || b.candidates - a.candidates || b.held - a.held || a.short.localeCompare(b.short, 'cs'),
+    );
+}
+
 /** Histogram věku po 5 letech, rozdělený podle pohlaví. */
 export function ageHistogram(cands, step = 5) {
   const lo = Math.floor(Math.min(...cands.map((c) => c.age)) / step) * step;

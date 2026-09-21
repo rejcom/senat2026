@@ -13,6 +13,11 @@ npm run build      # produkční build do dist/ (funguje z libovolného podadres
 
 Demo výsledků před volbami (fiktivní čísla, jasně označená): `?demo=1` (první výsledky, sečteno pár % okrsků), `?demo=2` (konec 1. kola), `?demo=3` (po 2. kole).
 
+## Grafiky a export do PNG
+
+Tlačítko **⬇ PNG** u mapy, věkového grafu a grafu „Kdo brání, kdo útočí“ stáhne obrázek 2400×1254 px (poměr 1200×627, doporučený pro LinkedIn)
+s nadpisem, klíčovými čísly a zdrojem. Export vždy používá světlý vzhled. U mapy s (demo) výsledky je v obrázku červený pruh „DEMO – fiktivní data“.
+
 ## Data
 
 | Co | Odkud | Kdy se načítá |

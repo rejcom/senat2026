@@ -1,10 +1,11 @@
 import './style.css';
 import { loadData, fullName } from './data.js';
-import { RESULTS_URL, REFRESH_MS, MODES } from './config.js';
+import { RESULTS_URL, REFRESH_MS, MODES, DESC } from './config.js';
 import { createMap } from './map.js';
 import { obvodCard, inactiveCard, esc, chip, years } from './cards.js';
-import { summarize, partyCounts, ageHistogram, fmt1, fmtInt } from './stats.js';
-import { ageChart, partyBars, GENDER_COLORS } from './charts.js';
+import { summarize, partyCounts, battleRows, ageHistogram, fmt1, fmtInt } from './stats.js';
+import { ageChart, battleChart, GENDER_COLORS } from './charts.js';
+import { renderGraphic, download } from './export.js';
 import { createTable } from './table.js';
 import { createPoller, obvodResult } from './live.js';
 import { demoXml } from './demo.js';
@@ -15,6 +16,7 @@ const demoLevel = Number(new URLSearchParams(location.search).get('demo')) || 0;
 
 const data = await loadData();
 const counts = partyCounts(data.candidates);
+const battle = battleRows(data.obvody);
 
 const state = {
   mode: 'incumbent',
@@ -194,13 +196,6 @@ function renderMap() {
   map.update({ mode: state.mode, results: state.resMap, partyFilter: state.partyFilter, selected: state.selected });
 }
 
-const DESC = {
-  incumbent: 'Barva obvodu = strana současného senátora, který mandát obhajuje. Tečky = kandidáti podle nominující strany.',
-  leader: 'Barva obvodu = strana vedoucího kandidáta (sytá barva = už zvolen). Tečky = kandidáti.',
-  count: 'Barva obvodu = počet kandidátů.',
-  age: 'Barva obvodu = průměrný věk kandidátů.',
-};
-
 function renderLegend() {
   const lg = $('legend');
   const desc = `<div class="lg-desc muted" style="flex-basis:100%">${DESC[state.mode]}</div>`;
@@ -237,7 +232,7 @@ function setPartyFilter(key) {
 $('clear-party').onclick = () => setPartyFilter(state.partyFilter);
 
 function renderParties() {
-  partyBars($('party-bars'), counts, { active: state.partyFilter, onPick: setPartyFilter });
+  battleChart($('battle'), battle, { active: state.partyFilter, onPick: setPartyFilter });
 }
 
 function renderSide() {
@@ -353,6 +348,25 @@ if (demoLevel) {
   const what = { 1: 'první výsledky (sečteno 5–40 % okrsků)', 2: 'konec 1. kola', 3: 'po 2. kole' }[demoLevel] ?? '';
   $('demo-banner').textContent = `DEMO REŽIM${what ? ` – ${what}` : ''} – zobrazená čísla jsou vygenerovaná, nejde o skutečné výsledky voleb.`;
 }
+
+// ---------- export grafik do PNG ----------
+
+document.querySelectorAll('[data-export]').forEach((btn) => {
+  btn.addEventListener('click', async () => {
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Připravuji…';
+    try {
+      const { blob, file } = await renderGraphic(btn.dataset.export, { data, counts, battle, state, map, demo: !!demoLevel });
+      download(blob, file);
+    } catch (e) {
+      alert(`Obrázek se nepodařilo vytvořit: ${e instanceof Error ? e.message : e}`);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
+});
 
 renderFooter();
 const initial = Number(location.hash.match(/obvod-(\d+)/)?.[1]);

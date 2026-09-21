@@ -231,21 +231,11 @@ button { font: inherit; color: inherit; }
 .olist .dots i.d { outline: 2px solid var(--ink); outline-offset: 0; }
 
 /* ---------- grafy ---------- */
-.chart { width: 100%; height: auto; display: block; }
-.chart .grid { stroke: var(--line); stroke-width: 1; }
-.chart .axis { fill: var(--muted); font-size: 11px; }
-.chart .val { fill: var(--ink); font-size: 11px; font-weight: 600; }
-.chart-legend { display: flex; gap: 14px; justify-content: center; color: var(--muted); font-size: 12px; }
-.chart-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 2px; }
-.pbars { display: grid; gap: 3px; max-height: 320px; overflow: auto; padding-right: 4px; }
-.pbar { display: grid; grid-template-columns: 112px minmax(0, 1fr) 24px; gap: 8px; align-items: center; border: 0; background: none; padding: 2px 4px; cursor: pointer; border-radius: 3px; text-align: left; }
-.pbar:hover { background: var(--bg); }
-.pbar.is-active { outline: 1.5px solid var(--ink); }
-.pbar.is-dim { opacity: 0.4; }
-.pbar-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pbar-track { height: 12px; background: var(--bg); border-radius: 2px; overflow: hidden; }
-.pbar-track i { display: block; height: 100%; border-radius: 2px; }
-.pbar-n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+#battle [data-key]:hover rect:first-child { fill: var(--bg); }
+.head-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.btn-ghost { border: 1px solid var(--line); background: transparent; padding: 4px 10px; border-radius: 3px; cursor: pointer; font-size: 12.5px; white-space: nowrap; }
+.btn-ghost:hover:not(:disabled) { background: var(--bg); }
+.btn-ghost:disabled { opacity: 0.6; cursor: progress; }
 
 /* ---------- tabulka ---------- */
 .table-tools { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }

@@ -248,6 +248,7 @@ const obvody = activeIds.map((id) => {
           lastName: sen.lastName,
           titlesBefore: sen.titlesBefore,
           titlesAfter: sen.titlesAfter,
+          gender: inferGender(sen.firstName, sen.lastName).g,
           electedYear: sen.electedYear,
           partyId: sen.partyId,
           running: cands.some((c) => c.defends),

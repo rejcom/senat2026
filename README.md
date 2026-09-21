@@ -19,6 +19,27 @@ Tlačítko **⬇ PNG** u mapy, věkového grafu a grafu „Kdo brání, kdo úto
 s nadpisem, klíčovými čísly a zdrojem. Grafiky: mapa, věk kandidátů, „Kdo brání, kdo útočí“ a křeslový graf **Složení Senátu**
 (81 křesel podle klubů, zatržítko = mandát, o který se letos volí; po prvních výsledcích přibude pohled „Průběžné složení“). Export vždy používá světlý vzhled. U mapy s (demo) výsledky je v obrázku červený pruh „DEMO – fiktivní data“.
 
+## Vysílání s automatickým komentářem (`vysilani.html`)
+
+Obrazovka 1920×1080 pro stream: sama se točí po obvodech, ukazuje první tři kandidáty, průběh sčítání, křeslový graf a lištu s událostmi.
+K výsledkům čte česky komentář, psaný na obrazovce i mluvený (Web Speech API, česky např. „Microsoft Jakub“ ve Windows).
+
+- **Spuštění:** otevřít `vysilani.html`, kliknout na „Spustit vysílání“ (zvuk prohlížeč povolí až po kliknutí). Klávesy: `F` celá obrazovka, `M` hlas, mezerník pauza, `→` další obvod.
+  `?bezovladani=1` schová ovládací tlačítka, `?rychlost=1.1` zrychlí hlas.
+- **Komentář nic nevymýšlí:** skládá se z předem napsaných šablon (`src/commentary.js`), do kterých se dosazují jen čísla a jména z dat ČSÚ.
+  Jména a názvy obvodů jsou vždy v 1. pádu, aby se nic nezkomolilo skloňováním. Před vysloveným tvrzením se ověřuje, že pořád platí („těsný souboj“, „první čísla“).
+- **Priority (`src/director.js`):** rozhodnutí obvodu a postup do 2. kola mají vždy přednost, nezastarávají a čtou se celé. Pravidelně přijde souhrn s tabulkou výsledků,
+  při velké frontě se oznámení zkrátí. Výpadek dat ČSÚ se ukáže žlutým pruhem, zobrazuje se poslední známý stav.
+- **Zkouška:** `vysilani.html?demo=noc` přehraje celý večer za 10 minut (`&min=3` = 3 minuty), vše fiktivní a označené „DEMO“. `?demo=1|2|3` jsou statické fáze.
+- **Do LinkedIn Live:** stránku otevřít v Edge/Chrome a v OBS ji zachytit jako okno (zdroj „Zachytávání okna“) a zvuk počítače (zdroj „Zachytávání zvuku plochy“).
+  LinkedIn Live vyžaduje povolení, streamovací nástroj (OBS / StreamYard / Restream) a předem naplánovanou událost, podmínky ověřte přímo na LinkedInu.
+
+### Výslovnost stran (`vyslovnost.html`)
+
+Jak se název strany čte nahlas, je v `src/pronunciation.js` (klíč = zkratka strany z dat ČSÚ). Stránka `vyslovnost.html` ukazuje všechny strany z dat, co přesně dostane hlasový engine,
+jak jistá ta výslovnost je, a tlačítko ▶ na poslech. Nahoře jsou strany už zasedající v Senátu nebo Sněmovně. Zkratky bez ustálené výslovnosti se čtou celým názvem.
+Doloženo je jen ODS (Internetová jazyková příručka ÚJČ); „top nula devět“ a „sen dvacet jedna“ potvrdil zadavatel, ostatní je pravidlo nebo uzus a je označeno.
+
 ## Data
 
 | Co | Odkud | Kdy se načítá |

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Výslovnost stran – kontrola</title>
+    <meta name="robots" content="noindex" />
+    <style>
+      body { font: 15px/1.45 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 20px 24px 40px; background: #f3f2f1; color: #252423; }
+      h1 { font-size: 22px; margin: 0 0 4px; }
+      p { max-width: 900px; color: #605e5c; }
+      table { border-collapse: collapse; background: #fff; border: 1px solid #e1dfdd; margin-top: 14px; width: 100%; max-width: 1200px; }
+      th, td { padding: 7px 12px; border-bottom: 1px solid #e1dfdd; text-align: left; vertical-align: middle; }
+      th { background: #faf9f8; position: sticky; top: 0; }
+      .abbr { font-weight: 700; white-space: nowrap; }
+      .parl { font-size: 11px; font-weight: 600; color: #1b4f99; background: #e4f0ff; border-radius: 8px; padding: 0 7px; display: inline-block; margin-top: 2px; }
+      .note { font-size: 12px; color: #8a5300; margin-top: 2px; }
+      .say { font-size: 17px; }
+      .how { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+      .how.ujc, .how.potvrzeno { background: #dff3e6; color: #16653a; }
+      .how.pravidlo { background: #e4f0ff; color: #1b4f99; }
+      .how.uzus { background: #e4f0ff; color: #1b4f99; }
+      .how.slovo { background: #eee; color: #555; }
+      .how.nazev { background: #f1eafc; color: #5b3aa0; }
+      .how.odhad { background: #fff0d6; color: #8a5300; }
+      .how.chybi { background: #fde2e0; color: #a3271e; }
+      button { font: inherit; border: 1px solid #c8c6c4; background: #fff; border-radius: 4px; padding: 3px 12px; cursor: pointer; }
+      button:hover { background: #f3f2f1; }
+      .top { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 12px 0 0; }
+      #voice, #progress { color: #605e5c; }
+      #progress { font-weight: 600; }
+      button.primary { background: #1f4e8c; color: #fff; border-color: #1f4e8c; }
+      button.primary:hover { background: #2a63b0; }
+      textarea { display: block; width: 100%; max-width: 1200px; margin-top: 12px; font: 13px/1.4 Consolas, monospace; padding: 8px 10px; border: 1px solid #c8c6c4; border-radius: 4px; }
+      .sayin { width: 100%; min-width: 240px; font: 17px 'Segoe UI', system-ui, sans-serif; padding: 4px 8px; border: 1px solid #d2d0ce; border-radius: 4px; background: #fff; }
+      tr.is-edited .sayin { border-color: #d98a00; background: #fff8e8; }
+      tr.is-ok td.okc { background: #eefaf2; }
+      tr.is-playing { background: #eaf3ff; }
+      td.okc label { white-space: nowrap; cursor: pointer; }
+      .legend { font-size: 13px; color: #605e5c; margin-top: 12px; max-width: 1100px; }
+    </style>
+  </head>
+  <body>
+    <h1>Jak se čtou názvy stran ve vysílání</h1>
+    <p>
+      Kontrola výslovnosti. Sloupec „Čte se“ je přesně to, co dostane hlasový engine, a jde v něm psát. <b>Postup:</b> poslechněte (▶),
+      když to zní dobře, zaškrtněte „zní dobře“, když ne, přepište text foneticky (např. „ká es čé em“) a poslechněte znovu.
+      Nakonec klikněte na <b>Zkopírovat výsledek</b> a vložte ho do chatu. Rozdělaná práce se v prohlížeči ukládá sama.
+    </p>
+    <div class="top">
+      <button id="all">▶ Přehrát všechny</button>
+      <button id="unchecked">▶ Jen nezkontrolované</button>
+      <button id="stop">■ Zastavit</button>
+      <button id="copy" class="primary">Zkopírovat výsledek pro Claude</button>
+      <span id="progress"></span>
+      <span id="voice"></span>
+    </div>
+    <textarea id="report" hidden readonly rows="9" aria-label="Výsledek kontroly"></textarea>
+    <table>
+      <thead><tr><th></th><th>Zkratka</th><th>Oficiální název</th><th>Čte se (upravitelné)</th><th>Kontrola</th><th>Jistota</th><th>Kandidátů</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="legend">
+      <b>Nahoře jsou strany, které už jsou v Senátu nebo ve Sněmovně</b>, ty zkontrolujte jako první.<br />
+      <b>Jistota:</b>
+      <span class="how potvrzeno">potvrzeno</span> ověřeno zadavatelem (rodilý mluvčí) ·
+      <span class="how ujc">ÚJČ</span> doloženo Internetovou jazykovou příručkou ·
+      <span class="how pravidlo">pravidlo</span> iniciálová zkratka po písmenech (pravidlo ÚJČ) ·
+      <span class="how uzus">uzus</span> ustálené zvykové čtení, v příručce nevyjmenované ·
+      <span class="how slovo">slovo</span> běžné slovo ·
+      <span class="how nazev">název</span> zkratka nemá ustálenou výslovnost, čte se celý název ·
+      <span class="how odhad">odhad</span> nejisté, zkontrolujte poslechem ·
+      <span class="how chybi">chybí</span> není ve slovníku, použije se název
+    </div>
+    <script type="module" src="/src/vyslovnost.js"></script>
+  </body>
+</html>

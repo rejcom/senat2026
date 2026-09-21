@@ -66,7 +66,7 @@ function chair(x, y, { fill, stroke = 'none', check = false, checkColor = '#fff'
  * senate = data.senate, live = null (před volbami) nebo Map z liveSeats().
  * Vrací { svg, width, height } – svg je responzivní, width/height jsou rozměry viewBoxu.
  */
-export function senateSvg(senate, { theme = 'page', live = null } = {}) {
+export function senateSvg(senate, { theme = 'page', live = null, chairsOnly = false } = {}) {
   const T = THEMES[theme];
   const groups = groupSeats(senate, live);
   const bg = theme === 'export' ? '#ffffff' : 'var(--card)';
@@ -108,6 +108,12 @@ export function senateSvg(senate, { theme = 'page', live = null } = {}) {
   const width = Math.max(x - GAP, 1);
   const chartH = (ROWS - 1) * ROW + CH;
 
+  if (chairsOnly) {
+    // jen křesla (legendu si vykreslí volající větším písmem)
+    const svg = `<svg viewBox="0 0 ${width} ${chartH + 2}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Složení Senátu podle klubů" style="width:100%;height:auto;display:block">${seats}</svg>`;
+    return { svg, width, height: chartH + 2, groups, legendItems };
+  }
+
   // legenda: 3 položky v řadě
   const perRow = 3;
   const itemW = width / perRow;
@@ -138,7 +144,7 @@ export function senateSvg(senate, { theme = 'page', live = null } = {}) {
     key +
     t(26, noteY - 1, esc(keyText), { size: 12, fill: T.muted }) +
     '</svg>';
-  return { svg, width, height, groups };
+  return { svg, width, height, groups, legendItems };
 }
 
 /** Vykreslí graf do elementu. */

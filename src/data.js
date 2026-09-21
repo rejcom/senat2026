@@ -10,9 +10,10 @@ export function partyStyle(partyId, parties) {
   const group = PARTY_GROUP[id] ?? id;
   const short = GROUP_LABEL[group] ?? parties[id]?.short ?? id;
   const name = parties[id]?.name ?? short;
-  if (PARTY_COLORS[group]) return { key: group, color: PARTY_COLORS[group], short, name };
-  if (id === IND_ID) return { key: 'IND', color: IND_COLOR, short: 'Nezávislí', name: 'Nezávislý kandidát' };
-  return { key: 'OTHER', color: OTHER_COLOR, short: 'Ostatní', name, own: short };
+  const raw = parties[id]?.short ?? id; // skutečná zkratka strany v datech ČSÚ (bez slučování do skupin barev)
+  if (PARTY_COLORS[group]) return { key: group, color: PARTY_COLORS[group], short, name, raw };
+  if (id === IND_ID) return { key: 'IND', color: IND_COLOR, short: 'Nezávislí', name: 'Nezávislý kandidát', raw };
+  return { key: 'OTHER', color: OTHER_COLOR, short: 'Ostatní', name, own: short, raw };
 }
 
 export function fullName(p, { titles = true } = {}) {

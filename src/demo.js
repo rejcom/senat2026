@@ -90,3 +90,55 @@ export function demoXml(obvody, level) {
   out.push('</VYSLEDKY>');
   return out.join('\n');
 }
+
+/**
+ * Časosběrná simulace volebního večera (?demo=noc). t = 0..1 je podíl uplynulého „večera“.
+ * Obvody se začnou sčítat v různou dobu, na začátku bývá pořadí jiné než na konci (aby se měnil vedoucí).
+ * Vše je FIKTIVNÍ, slouží ke zkoušce vysílání.
+ */
+export function demoNightXml(obvody, t) {
+  const out = [];
+  out.push('<?xml version="1.0" encoding="utf-8"?>');
+  out.push(`<VYSLEDKY xmlns="http://www.volby.cz/senat/" DATUM_CAS_GENEROVANI="${new Date().toISOString().slice(0, 19)}">`);
+  for (const o of obvody) {
+    const rand = rng(o.id * 104729);
+    const n = o.candidates.length;
+    const base = o.candidates.map((c, i) => (c.defends ? 2.2 : 1) * (0.3 + rand()) * (n - i * 0.15));
+    const start = rand() * 0.55;
+    const dur = 0.22 + rand() * 0.28;
+    const f = Math.min(1, Math.max(0, (t - start) / dur));
+    const bias = base.map(() => rand() - 0.5);
+    const voters = 60000 + Math.round(rand() * 60000);
+    const precincts = 120 + Math.round(rand() * 200);
+    const turnout = 0.3 + rand() * 0.1;
+    const done = Math.round(precincts * f);
+    const valid = Math.round(voters * turnout * f);
+
+    const cur = base.map((w, i) => w * (1 + bias[i] * Math.pow(1 - f, 1.5)));
+    const sumCur = cur.reduce((a, b) => a + b, 0);
+    const votes1 = cur.map((w) => Math.round((w / sumCur) * valid));
+    const finished = f >= 1;
+    const order = votes1.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]).map((x) => x[1]);
+    const majority = finished && votes1[order[0]] > valid / 2;
+
+    out.push(`<OBVOD CISLO="${o.id}" NAZEV="${esc(o.name)}">`);
+    o.candidates.forEach((c, i) => {
+      let a =
+        `PORADOVE_CISLO="${c.no}" JMENO="${esc(c.firstName)}" PRIJMENI="${esc(c.lastName)}" TITULPRED="" TITULZA="" ` +
+        `HLASY_1KOLO="${votes1[i]}" HLASY_PROC_1KOLO="${valid ? ((votes1[i] / valid) * 100).toFixed(2) : '0.00'}"`;
+      if (finished) {
+        const rank = order.indexOf(i);
+        a += ` ZVOLEN_1KOLO="${majority ? (rank === 0 ? 'ZVOLEN' : 'NEZVOLEN') : rank < 2 ? '2.KOLO' : 'NEZVOLEN'}"`;
+      }
+      out.push(`<KANDIDAT ${a}/>`);
+    });
+    out.push(
+      `<UCAST KOLO="1" OKRSKY_CELKEM="${precincts}" OKRSKY_ZPRAC="${done}" OKRSKY_ZPRAC_PROC="${((done / precincts) * 100).toFixed(2)}" ` +
+        `ZAPSANI_VOLICI="${voters}" VYDANE_OBALKY="0" UCAST_PROC="${(turnout * 100).toFixed(2)}" VOLICSKE_PRUKAZY="0" ODEVZDANE_OBALKY="0" ` +
+        `PLATNE_HLASY="${valid}" PLATNE_HLASY_PROC="99.50"/>`,
+    );
+    out.push('</OBVOD>');
+  }
+  out.push('</VYSLEDKY>');
+  return out.join('\n');
+}

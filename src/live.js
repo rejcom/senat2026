@@ -89,7 +89,7 @@ export function obvodResult(obvod, results) {
  * Poller: zavolá `fetchText`, výsledek parsuje a předá `onData`; stav (načítání / ok / chyba)
  * hlásí přes `onStatus`. Když je záložka skrytá, nestahuje. Po návratu se hned obnoví.
  */
-export function createPoller({ fetchText, interval, onData, onStatus }) {
+export function createPoller({ fetchText, interval, onData, onStatus, background = false }) {
   let timer = null;
   let running = false;
   let inFlight = false;
@@ -104,7 +104,7 @@ export function createPoller({ fetchText, interval, onData, onStatus }) {
 
   async function tick() {
     if (inFlight) return;
-    if (document.hidden) {
+    if (document.hidden && !background) {
       nextAt = null;
       return; // obnoví se po návratu na záložku
     }

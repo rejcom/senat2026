@@ -296,7 +296,8 @@ function renderFooter() {
     <div>Registr kandidátů: <code>${esc(m.sources.registry.split('/').pop())}</code>, sestaveno ${new Date(m.generatedAt).toLocaleString('cs-CZ')}.
       Obhájci mandátu určeni podle složení Senátu ze dne ${new Date(m.sources.incumbentsAsOf).toLocaleDateString('cs-CZ')} – při pozdější změně může být údaj neaktuální.</div>
     <div>Pohlaví není součástí dat ČSÚ, je odvozeno z jména a příjmení. Barva = nominující strana; kandidát nominovaný stranou může být bezpartijní.
-      Neoficiální přehled, závazné jsou výsledky na <a href="https://volby.gov.cz">volby.gov.cz</a>.</div>`;
+      Neoficiální přehled, závazné jsou výsledky na <a href="https://volby.gov.cz">volby.gov.cz</a>.</div>
+    <div><a href="vysilani.html">Vysílací režim</a> (obrazovka pro stream s automatickým komentářem) · zkouška: <a href="vysilani.html?demo=noc">celý večer za 10 minut, fiktivní data</a></div>`;
 }
 
 // ---------- výsledky (živě z ČSÚ) ----------

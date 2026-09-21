@@ -1,4 +1,4 @@
-import { PARTY_COLORS, IND_ID, IND_COLOR, OTHER_COLOR } from './config.js';
+import { PARTY_COLORS, IND_ID, IND_COLOR, OTHER_COLOR, CLUB_COLORS } from './config.js';
 
 // ČSSD a Sociální demokracie sdílejí barvu i řádek v legendě
 const PARTY_GROUP = { 759: '7' };
@@ -40,10 +40,16 @@ export async function loadData() {
   }
   for (const o of cand.others) o.senator.party = partyStyle(o.senator.partyId, cand.parties);
 
+  const senate = cand.senate;
+  for (const c of senate.clubs) c.color = CLUB_COLORS.find(([re]) => re.test(c.short))?.[1] ?? OTHER_COLOR;
+  const clubById = new Map(senate.clubs.map((c) => [c.id, c]));
+  for (const s of senate.seats) s.club = clubById.get(s.clubId);
+
   return {
     meta: cand,
     parties: cand.parties,
     obvody: cand.obvody,
+    senate,
     obvodById: new Map(cand.obvody.map((o) => [o.id, o])),
     othersById: new Map(cand.others.map((o) => [o.id, o])),
     candidates,

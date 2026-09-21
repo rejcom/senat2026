@@ -109,7 +109,7 @@ button { font: inherit; color: inherit; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
 .link { border: 0; background: none; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; }
 
-.kpis, .grid, .charts, #table-card, .foot { max-width: 1400px; margin-left: auto; margin-right: auto; }
+.kpis, .grid, .charts, #table-card, .senate-card, .foot { max-width: 1400px; margin-left: auto; margin-right: auto; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 12px; }
 .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 10px 14px; min-width: 0; }
 .kpi-l { color: var(--muted); font-size: 12px; }
@@ -121,7 +121,9 @@ button { font: inherit; color: inherit; }
 
 .grid { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 12px; align-items: start; margin-bottom: 12px; }
 .charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px; }
-#table-card { margin-bottom: 12px; }
+#table-card, .senate-card { margin-bottom: 12px; }
+.senate { max-width: 900px; margin: 0 auto; }
+.senate-note { font-size: 12.5px; margin-top: 8px; text-align: center; }
 @media (max-width: 980px) {
   .grid, .charts { grid-template-columns: 1fr; }
 }

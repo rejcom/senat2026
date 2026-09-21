@@ -2,6 +2,7 @@
 //
 //   npm run data                 – stáhne registr kandidátů, číselníky a hranice obvodů
 //   npm run data:refresh         – navíc znovu stáhne aktuální složení Senátu (obhájci mandátů)
+//   node scripts/build-data.mjs --refresh-senate   – znovu stáhne kluby a senátory ze senat.cz
 //
 // Výstup: public/data/candidates.json, public/data/obvody.geojson
 // (výsledky voleb se do JSON nepřipravují, web si je čte za běhu přímo z volby.gov.cz)
@@ -10,11 +11,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { unzipSync } from 'fflate';
+import { fetchSenate } from './senate-clubs.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, 'public', 'data');
 const SRC = path.join(ROOT, 'data-src');
 const REFRESH = process.argv.includes('--refresh-incumbents');
+const REFRESH_SENATE = process.argv.includes('--refresh-senate');
 
 const ELECTION = '20261009';
 const OPENDATA_PAGE = 'https://volby.gov.cz/opendata/se2026/se2026_opendata.htm';
@@ -286,6 +289,50 @@ const others = senators.senators
     };
   });
 
+// ---------- složení Senátu podle klubů (křeslový graf) ----------
+
+const clubsPath = path.join(SRC, 'senate-clubs.json');
+let senateNow;
+if (!REFRESH_SENATE && fs.existsSync(clubsPath)) {
+  senateNow = JSON.parse(fs.readFileSync(clubsPath, 'utf8'));
+  console.log(`Složení Senátu: použit uložený snímek ${path.relative(ROOT, clubsPath)} (k ${senateNow.asOf})`);
+} else {
+  console.log('Stahuji složení Senátu ze senat.cz (6 klubů, 81 profilů, chvíli to trvá)');
+  senateNow = await fetchSenate({ log: console.log });
+  fs.writeFileSync(clubsPath, JSON.stringify(senateNow, null, 1));
+}
+const obvodNames = new Map(obvodyCis.map((o) => [Number(o.OBVOD), o.NAZEV_OBV]));
+const clubOrder = new Map(senateNow.clubs.map((c, i) => [c.id, i]));
+const seats = senateNow.senators
+  .map((s) => {
+    const inPlay = !!s.mandateEnd?.startsWith('2026');
+    const o = obvody.find((x) => x.id === s.obvod);
+    return {
+      obvod: s.obvod,
+      obvodName: obvodNames.get(s.obvod) ?? String(s.obvod),
+      name: s.name,
+      clubId: s.clubId,
+      electedFor: s.electedFor,
+      electedYear: s.electedYear,
+      inPlay,
+      running: inPlay ? (o?.incumbent?.running ?? null) : null,
+    };
+  })
+  .sort((a, b) => clubOrder.get(a.clubId) - clubOrder.get(b.clubId) || Number(b.inPlay) - Number(a.inPlay) || a.obvod - b.obvod);
+
+// kontrola: křesla, která se podle senat.cz volí letos, musí souhlasit s obvody z registru kandidátů
+const inPlayIds = seats.filter((s) => s.inPlay).map((s) => s.obvod).sort((a, b) => a - b);
+if (inPlayIds.join() !== activeIds.join()) {
+  console.warn(`POZOR: křesla s koncem mandátu 2026 (${inPlayIds.join(',')}) nesouhlasí s obvody z registru (${activeIds.join(',')})`);
+}
+for (const o of obvody) {
+  const s = seats.find((x) => x.obvod === o.id);
+  if (o.incumbent && s && !norm(s.name).includes(norm(o.incumbent.lastName.split(' ').pop()))) {
+    console.warn(`POZOR: obvod ${o.id}: snímek obhájců uvádí ${o.incumbent.lastName}, senat.cz uvádí ${s.name}`);
+  }
+}
+const senate = { asOf: senateNow.asOf, source: senateNow.source, clubs: senateNow.clubs, seats };
+
 const out = {
   generatedAt: new Date().toISOString(),
   sources: {
@@ -298,6 +345,7 @@ const out = {
   parties,
   obvody,
   others,
+  senate,
 };
 fs.writeFileSync(path.join(OUT, 'candidates.json'), JSON.stringify(out));
 

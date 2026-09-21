@@ -5,6 +5,7 @@ import { ageSvg, battleSvg, GENDER_COLORS } from './charts.js';
 import { ageHistogram, summarize, fmt1 } from './stats.js';
 import { fullName } from './data.js';
 import { DESC } from './config.js';
+import { senateSvg, liveSeats } from './senate.js';
 
 const W = 1200;
 const H = 627;
@@ -140,6 +141,45 @@ function ageGraphic({ data }) {
   };
 }
 
+function senateGraphic({ data, state, demo }) {
+  const live = state.senateView === 'live' ? liveSeats(data.senate, state.resMap) : null;
+  const { svg, width, height } = senateSvg(data.senate, { theme: 'export', live });
+  // vejít se do šířky i do výšky (s legendou o víc řádcích je graf vyšší)
+  let w = 1040;
+  let h = Math.round((height / width) * w);
+  if (h > 446) {
+    h = 446;
+    w = Math.round((width / height) * h);
+  }
+  const total = data.senate.seats.length;
+  const inPlay = data.senate.seats.filter((s) => s.inPlay).length;
+  const asOf = new Date(data.senate.asOf).toLocaleDateString('cs-CZ');
+  let title;
+  let subtitle;
+  let note;
+  if (live) {
+    const decided = [...live.values()].filter((v) => v.won).length;
+    title = 'Složení Senátu po volbách 2026 (průběžně)';
+    subtitle = `${total} křesel · rozhodnuto ${decided} z ${inPlay} volených mandátů`;
+    note = `Zvolení jsou zařazeni do klubu podle strany, kluby se po volbách ještě mění. Původní složení: senat.cz k ${asOf}.`;
+  } else {
+    const per = data.senate.clubs
+      .map((c) => ({ c, n: data.senate.seats.filter((s) => s.clubId === c.id && s.inPlay).length, size: c.size }))
+      .sort((a, b) => b.n - a.n)[0];
+    title = 'Složení Senátu před volbami 2026';
+    subtitle = `${total} křesel · ${inPlay} se letos volí · ${per.c.short}: v sázce ${per.n} z ${per.size} křesel`;
+    note = `Složení klubů podle senat.cz k ${asOf}. Zatržítko = křeslo, o které se letos volí.`;
+  }
+  return {
+    title,
+    subtitle,
+    content: place(svg, (W - w) / 2, 116, w, h),
+    note,
+    ribbon: demo && live ? 'DEMO – fiktivní data, nejde o skutečné výsledky voleb' : '',
+    file: live ? 'senat2026-slozeni-prubezne.png' : 'senat2026-slozeni-pred-volbami.png',
+  };
+}
+
 const TITLES = {
   incumbent: 'Senát 2026: kdo obhajuje mandát',
   leader: 'Senát 2026: průběžné výsledky',
@@ -208,7 +248,7 @@ async function toPng(svgText) {
 
 /** ctx: { data, counts, battle, state, map, demo }. Vrací { blob, file }; stažení provede volající. */
 export async function renderGraphic(kind, ctx) {
-  const g = { battle: battleGraphic, age: ageGraphic, map: mapGraphic }[kind](ctx);
+  const g = { battle: battleGraphic, age: ageGraphic, map: mapGraphic, senate: senateGraphic }[kind](ctx);
   const blob = await toPng(frame(g));
   return { blob, file: g.file };
 }

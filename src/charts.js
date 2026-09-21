@@ -4,12 +4,12 @@ import { esc } from './cards.js';
 
 export const GENDER_COLORS = { F: '#c8508a', M: '#4a7fb5' };
 
-const THEMES = {
+export const THEMES = {
   page: { ink: 'var(--ink)', muted: 'var(--muted)', line: 'var(--line)', box: 'var(--bg)' },
   export: { ink: '#252423', muted: '#605e5c', line: '#e1dfdd', box: '#f3f2f1' },
 };
 const FONT = "font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif";
-const t = (x, y, s, { size = 11, weight = 400, anchor = 'start', fill, extra = '' }) =>
+export const t = (x, y, s, { size = 11, weight = 400, anchor = 'start', fill, extra = '' }) =>
   `<text x="${x}" y="${y}" text-anchor="${anchor}" style="${FONT};font-size:${size}px;font-weight:${weight};fill:${fill}"${extra}>${s}</text>`;
 
 // ---------- histogram věku ----------

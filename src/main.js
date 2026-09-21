@@ -6,6 +6,7 @@ import { obvodCard, inactiveCard, esc, chip, years } from './cards.js';
 import { summarize, partyCounts, battleRows, ageHistogram, fmt1, fmtInt } from './stats.js';
 import { ageChart, battleChart, GENDER_COLORS } from './charts.js';
 import { renderGraphic, download } from './export.js';
+import { senateChart, liveSeats } from './senate.js';
 import { createTable } from './table.js';
 import { createPoller, obvodResult } from './live.js';
 import { demoXml } from './demo.js';
@@ -26,6 +27,8 @@ const state = {
   results: null, // surová data z XML
   resMap: new Map(), // id obvodu -> odvozený výsledek
   anyVotes: false,
+  senateView: 'before', // 'before' | 'live'
+  senateTouched: false,
   status: { state: 'loading' },
 };
 
@@ -309,6 +312,31 @@ function recompute() {
   if (state.anyVotes && !state.modeTouched) state.mode = 'leader';
 }
 
+function renderSenate() {
+  const live = liveSeats(data.senate, state.resMap);
+  const decided = [...live.values()].filter((v) => v.won).length;
+  if (!decided) state.senateView = 'before';
+  else if (!state.senateTouched) state.senateView = 'live';
+  const views = $('senate-views');
+  views.hidden = !decided;
+  views.innerHTML = [['before', 'Před volbami'], ['live', 'Průběžné složení']]
+    .map(([id, label]) => `<button type="button" data-v="${id}" class="${id === state.senateView ? 'is-on' : ''}">${label}</button>`)
+    .join('');
+  senateChart($('senate'), data.senate, { live: state.senateView === 'live' ? live : null });
+  const asOf = new Date(data.senate.asOf).toLocaleDateString('cs-CZ');
+  $('senate-note').innerHTML =
+    state.senateView === 'live'
+      ? `Rozhodnuto ${decided} z ${live.size} volených křesel. Zvolení jsou zařazeni do klubu podle strany, po volbách se kluby ještě mění. Původní složení: <a href="${data.senate.source}">senat.cz</a> k ${asOf}.`
+      : `Složení klubů podle <a href="${data.senate.source}">senat.cz</a> k ${asOf}. Křeslo se zatržítkem: mandát, o který se letos volí (${live.size} z ${data.senate.seats.length}).`;
+}
+$('senate-views').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  state.senateView = b.dataset.v;
+  state.senateTouched = true;
+  renderSenate();
+});
+
 function renderAll() {
   renderSubtitle();
   renderStatus();
@@ -317,6 +345,7 @@ function renderAll() {
   renderMap();
   renderLegend();
   renderSide();
+  renderSenate();
   table.update(tableState());
 }
 

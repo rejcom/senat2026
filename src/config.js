@@ -40,3 +40,25 @@ export const DESC = {
   count: 'Barva obvodu = počet kandidátů.',
   age: 'Barva obvodu = průměrný věk kandidátů.',
 };
+
+// Barvy senátorských klubů (podle názvu klubu z senat.cz); kluby vycházejí z barev stran, aby sedělo celé UI
+export const CLUB_COLORS = [
+  [/ANO/i, '#5b3aa0'],
+  [/KDU/i, '#e0b000'],
+  [/ODS/i, '#1f77d0'],
+  [/SEN 21/i, '#3a3f47'],
+  [/Starostov/i, '#e0357f'],
+  [/Nezařaz/i, '#a8b0ba'],
+];
+
+// Do kterého klubu spadne zvolený kandidát podle nominující strany (klíč = skupina barvy strany).
+// Kluby se po volbách ještě mění, proto je to jen průběžný odhad. Ostatní strany = „Nezařazení“.
+export const CLUB_BY_PARTY = {
+  768: /ANO/i,
+  1: /KDU/i,
+  53: /ODS/i,
+  721: /ODS|TOP 09/i,
+  720: /Piráti/i,
+  1187: /SEN 21/i,
+  166: /Starostov/i,
+};

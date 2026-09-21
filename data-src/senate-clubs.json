@@ -1,0 +1,773 @@
+{
+ "asOf": "2026-09-21",
+ "source": "https://www.senat.cz/organy/index.php?ke_dni=21.9.2026&O=4&par_1=K",
+ "clubs": [
+  {
+   "id": "524",
+   "name": "Senátorský klub ANO 2011",
+   "short": "ANO 2011",
+   "size": 15
+  },
+  {
+   "id": "525",
+   "name": "Senátorský klub KDU-ČSL a nezávislí",
+   "short": "KDU-ČSL a nezávislí",
+   "size": 12
+  },
+  {
+   "id": "527",
+   "name": "Senátorský klub ODS a TOP 09",
+   "short": "ODS a TOP 09",
+   "size": 30
+  },
+  {
+   "id": "523",
+   "name": "Senátorský klub SEN 21 a Piráti",
+   "short": "SEN 21 a Piráti",
+   "size": 5
+  },
+  {
+   "id": "526",
+   "name": "Senátorský klub Starostové a nezávislí",
+   "short": "Starostové a nezávislí",
+   "size": 18
+  },
+  {
+   "id": "522",
+   "name": "Senátoři nezařazení do klubu",
+   "short": "Nezařazení",
+   "size": 1
+  }
+ ],
+ "senators": [
+  {
+   "pid": "370",
+   "name": "Mgr. Jana Mračková Vildumetzová",
+   "clubId": "524",
+   "obvod": 2,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-21"
+  },
+  {
+   "pid": "356",
+   "name": "MUDr. Věra Procházková",
+   "clubId": "524",
+   "obvod": 1,
+   "electedFor": "ANO 2011",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "305",
+   "name": "MUDr. Ladislav Václavec",
+   "clubId": "524",
+   "obvod": 64,
+   "electedFor": "ANO",
+   "electedYear": 2022,
+   "mandateEnd": "2028-09-24"
+  },
+  {
+   "pid": "206",
+   "name": "Ing. Petr Vícha",
+   "clubId": "524",
+   "obvod": 74,
+   "electedFor": "SOCDEM+ANO",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-21"
+  },
+  {
+   "pid": "371",
+   "name": "Bc. Martin Bednář, MBA",
+   "clubId": "524",
+   "obvod": 71,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-21"
+  },
+  {
+   "pid": "134",
+   "name": "Ing. Ondřej Feber",
+   "clubId": "524",
+   "obvod": 75,
+   "electedFor": "ANO",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "482",
+   "name": "doc. RNDr. PhDr. Oldřich Hájek, Ph.D., MBA",
+   "clubId": "524",
+   "obvod": 80,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "479",
+   "name": "Mgr. František Jura, MBA, LL.M.",
+   "clubId": "524",
+   "obvod": 62,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "260",
+   "name": "Jan Látka",
+   "clubId": "524",
+   "obvod": 11,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "367",
+   "name": "MUDr. Mgr. Zdeněk Matušek, MBA",
+   "clubId": "524",
+   "obvod": 73,
+   "electedFor": "ČSSD+ANO",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "481",
+   "name": "Ing. Tomáš Navrátil",
+   "clubId": "524",
+   "obvod": 68,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "468",
+   "name": "Ing. Jan Schiller",
+   "clubId": "524",
+   "obvod": 32,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "477",
+   "name": "Mgr. Róbert Šlachta",
+   "clubId": "524",
+   "obvod": 56,
+   "electedFor": "Přísaha",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "467",
+   "name": "MUDr. Ondřej Štěrba",
+   "clubId": "524",
+   "obvod": 29,
+   "electedFor": "ANO 2011",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "368",
+   "name": "Mgr. Jana Zwyrtek Hamplová",
+   "clubId": "524",
+   "obvod": 76,
+   "electedFor": "NEZ",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "347",
+   "name": "Ing. Josef Klement",
+   "clubId": "525",
+   "obvod": 51,
+   "electedFor": "KDU-ČSL",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "354",
+   "name": "Josef Bazala",
+   "clubId": "525",
+   "obvod": 81,
+   "electedFor": "KDU-ČSL",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "207",
+   "name": "Jiří Čunek",
+   "clubId": "525",
+   "obvod": 77,
+   "electedFor": "KDU-ČSL",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-21"
+  },
+  {
+   "pid": "355",
+   "name": "Petr Fiala",
+   "clubId": "525",
+   "obvod": 46,
+   "electedFor": "KDU-ČSL+SproK",
+   "electedYear": 2022,
+   "mandateEnd": "2028-09-24"
+  },
+  {
+   "pid": "240",
+   "name": "Mgr. Miluše Horská",
+   "clubId": "525",
+   "obvod": 43,
+   "electedFor": "KDU-ČSL+Nestran",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "304",
+   "name": "MUDr. Lumír Kantor, Ph.D.",
+   "clubId": "525",
+   "obvod": 61,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "365",
+   "name": "MUDr. Bohuslav Procházka",
+   "clubId": "525",
+   "obvod": 40,
+   "electedFor": "KDU-ČSL",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "369",
+   "name": "Ing. Eva Rajchmanová",
+   "clubId": "525",
+   "obvod": 79,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "63",
+   "name": "RNDr. Jitka Seitlová",
+   "clubId": "525",
+   "obvod": 63,
+   "electedFor": "KDU-ČSL",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "474",
+   "name": "Mgr. Bc. David Šimek",
+   "clubId": "525",
+   "obvod": 50,
+   "electedFor": "KDU-ČSL+Nestran",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "366",
+   "name": "Ivana Váňová, MBA",
+   "clubId": "525",
+   "obvod": 67,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "302",
+   "name": "Ing. Jaromíra Vítková",
+   "clubId": "525",
+   "obvod": 49,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "307",
+   "name": "Ing. Zdeněk Nytra",
+   "clubId": "527",
+   "obvod": 70,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "346",
+   "name": "Mgr. Jan Grulich",
+   "clubId": "527",
+   "obvod": 48,
+   "electedFor": "TOP 09+LES",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "326",
+   "name": "Mgr. Martin Červíček, brig. gen. v.v.",
+   "clubId": "527",
+   "obvod": 47,
+   "electedFor": "ODS",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "301",
+   "name": "Ing. Tomáš Czernin",
+   "clubId": "527",
+   "obvod": 37,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "342",
+   "name": "Miroslava Němcová",
+   "clubId": "527",
+   "obvod": 27,
+   "electedFor": "ODS+STAN+TOP 09",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "172",
+   "name": "Jiří Oberfalzer",
+   "clubId": "527",
+   "obvod": 16,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "243",
+   "name": "RNDr. Miloš Vystrčil",
+   "clubId": "527",
+   "obvod": 52,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "275",
+   "name": "Ing. Lumír Aschenbrenner",
+   "clubId": "527",
+   "obvod": 9,
+   "electedFor": "ODSTOPKDUADSMon",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "480",
+   "name": "prof. PhDr. Stanislav Balík, Ph.D.",
+   "clubId": "527",
+   "obvod": 65,
+   "electedFor": "NK",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "303",
+   "name": "Mgr. Jiří Dušek, Ph.D.",
+   "clubId": "527",
+   "obvod": 58,
+   "electedFor": "ČSSDODSVasFaktB",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "339",
+   "name": "MUDr. Bc. Tomáš Fiala, MBA",
+   "clubId": "527",
+   "obvod": 12,
+   "electedFor": "ODS",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "319",
+   "name": "Pavel Fischer",
+   "clubId": "527",
+   "obvod": 17,
+   "electedFor": "KDU+ODS+STA+TOP",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-21"
+  },
+  {
+   "pid": "312",
+   "name": "Ing. Tomáš Goláň",
+   "clubId": "527",
+   "obvod": 78,
+   "electedFor": "SEN 21",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "324",
+   "name": "JUDr. Ing. Zdeněk Hraba, Ph.D.",
+   "clubId": "527",
+   "obvod": 41,
+   "electedFor": "KONS+ODS+Mon+Sv",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "340",
+   "name": "Ing. Jaroslav Chalupský",
+   "clubId": "527",
+   "obvod": 15,
+   "electedFor": "Svobodní",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "171",
+   "name": "Ing. Tomáš Jirsa, MBA",
+   "clubId": "527",
+   "obvod": 10,
+   "electedFor": "ODS",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "362",
+   "name": "JUDr. Hana Kordová Marvanová",
+   "clubId": "527",
+   "obvod": 19,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "465",
+   "name": "Mgr. Vladimíra Ludková",
+   "clubId": "527",
+   "obvod": 23,
+   "electedFor": "KDU+ODS+PatriČR",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "357",
+   "name": "Mgr. Jan Paparega",
+   "clubId": "527",
+   "obvod": 4,
+   "electedFor": "ProMOST",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "288",
+   "name": "PhDr. Zdeněk Papoušek",
+   "clubId": "527",
+   "obvod": 60,
+   "electedFor": "KDZeODSSTPiTOFB",
+   "electedYear": 2025,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "361",
+   "name": "prof. MUDr. Jan Pirk, Dr.Sc.",
+   "clubId": "527",
+   "obvod": 22,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "298",
+   "name": "Mgr. Jiří Růžička",
+   "clubId": "527",
+   "obvod": 25,
+   "electedFor": "KDU+ODS+STA+TOP",
+   "electedYear": 2022,
+   "mandateEnd": "2028-09-24"
+  },
+  {
+   "pid": "478",
+   "name": "doc. Břetislav Rychlík",
+   "clubId": "527",
+   "obvod": 59,
+   "electedFor": "Zel+ODS+Pir+TOP",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "359",
+   "name": "MUDr. Marek Slabý",
+   "clubId": "527",
+   "obvod": 13,
+   "electedFor": "KDUODST2020TOP",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "363",
+   "name": "Ing. Jarmila Smotlachová",
+   "clubId": "527",
+   "obvod": 28,
+   "electedFor": "ODS",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "463",
+   "name": "Bc. Zbyněk Sýkora, MBA",
+   "clubId": "527",
+   "obvod": 14,
+   "electedFor": "ODS",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "353",
+   "name": "doc. MUDr. Ondřej Šimetka, Ph.D.",
+   "clubId": "527",
+   "obvod": 72,
+   "electedFor": "ODS",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "325",
+   "name": "Mgr. Jan Tecl, MBA",
+   "clubId": "527",
+   "obvod": 44,
+   "electedFor": "KDU+ODS+STA+TOP",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "194",
+   "name": "doc. MgA. Tomáš Töpfer",
+   "clubId": "527",
+   "obvod": 55,
+   "electedFor": "KDU+ODS+TOP 09",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "348",
+   "name": "Mgr. Tomáš Třetina",
+   "clubId": "527",
+   "obvod": 54,
+   "electedFor": "ODS+STAN+TOP 09",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "278",
+   "name": "Mgr. Václav Láska",
+   "clubId": "523",
+   "obvod": 21,
+   "electedFor": "SEN 21",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "343",
+   "name": "Mgr. Adéla Sucharda Šípová",
+   "clubId": "523",
+   "obvod": 30,
+   "electedFor": "Piráti",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "345",
+   "name": "JUDr. Jan Holásek, LL.M.",
+   "clubId": "523",
+   "obvod": 45,
+   "electedFor": "HDK+TOP+SE+Z+LE",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "364",
+   "name": "Mgr. Martin Krsek",
+   "clubId": "523",
+   "obvod": 31,
+   "electedFor": "SEN 21",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "315",
+   "name": "MVDr. Přemysl Rabas",
+   "clubId": "523",
+   "obvod": 5,
+   "electedFor": "SEN 21",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "311",
+   "name": "Ing. Jan Sobotka",
+   "clubId": "526",
+   "obvod": 39,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "281",
+   "name": "Ing. Zbyněk Linhart",
+   "clubId": "526",
+   "obvod": 33,
+   "electedFor": "STAN+SLK",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-03"
+  },
+  {
+   "pid": "282",
+   "name": "Jiří Vosecký",
+   "clubId": "526",
+   "obvod": 36,
+   "electedFor": "STAN+SLK",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "466",
+   "name": "prof. Mgr. Dr. Miroslav Bárta",
+   "clubId": "526",
+   "obvod": 26,
+   "electedFor": "TOP+STAN",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "300",
+   "name": "Ing. Michael Canov",
+   "clubId": "526",
+   "obvod": 34,
+   "electedFor": "SLK",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  },
+  {
+   "pid": "313",
+   "name": "prof. Ing. Jiří Drahoš, DrSc.",
+   "clubId": "526",
+   "obvod": 20,
+   "electedFor": "KDUODSSTANPiTOP",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "344",
+   "name": "Mgr. Pavel Kárník",
+   "clubId": "526",
+   "obvod": 42,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "461",
+   "name": "Ing. Mgr. Miroslav Kroc",
+   "clubId": "526",
+   "obvod": 8,
+   "electedFor": "STAN",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "470",
+   "name": "Mgr. Ondřej Lochman, Ph.D.",
+   "clubId": "526",
+   "obvod": 38,
+   "electedFor": "STAN+SLK",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "483",
+   "name": "Bc. Lena Mlejnková",
+   "clubId": "526",
+   "obvod": 35,
+   "electedFor": "SLK",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "351",
+   "name": "Marek Ošťádal",
+   "clubId": "526",
+   "obvod": 66,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "352",
+   "name": "RNDr. Helena Pešatová",
+   "clubId": "526",
+   "obvod": 69,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "336",
+   "name": "prof. Dr. Ing. Miroslav Plevný",
+   "clubId": "526",
+   "obvod": 3,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "334",
+   "name": "David Smoljak",
+   "clubId": "526",
+   "obvod": 24,
+   "electedFor": "STAN+Piráti+TOP",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "341",
+   "name": "Petr Štěpánek",
+   "clubId": "526",
+   "obvod": 18,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "337",
+   "name": "MUDr. Ivo Trešl",
+   "clubId": "526",
+   "obvod": 6,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "349",
+   "name": "MUDr. Karel Zitterbart, Ph.D.",
+   "clubId": "526",
+   "obvod": 57,
+   "electedFor": "STAN",
+   "electedYear": 2020,
+   "mandateEnd": "2026-10-10"
+  },
+  {
+   "pid": "328",
+   "name": "Hana Žáková",
+   "clubId": "526",
+   "obvod": 53,
+   "electedFor": "STAN",
+   "electedYear": 2024,
+   "mandateEnd": "2030-09-28"
+  },
+  {
+   "pid": "358",
+   "name": "JUDr. Daniela Kovářová",
+   "clubId": "522",
+   "obvod": 7,
+   "electedFor": "NK",
+   "electedYear": 2022,
+   "mandateEnd": "2028-10-01"
+  }
+ ]
+}

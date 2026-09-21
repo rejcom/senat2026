@@ -9,7 +9,8 @@
     "data:refresh": "node scripts/build-data.mjs --refresh-incumbents",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "data:senate": "node scripts/build-data.mjs --refresh-senate"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

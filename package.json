@@ -1,0 +1,24 @@
+{
+  "name": "senat2026",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Senátní volby 2026 – mapa kandidátů a výsledků z otevřených dat ČSÚ",
+  "scripts": {
+    "data": "node scripts/build-data.mjs",
+    "data:refresh": "node scripts/build-data.mjs --refresh-incumbents",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "d3-geo": "^3.1.1",
+    "d3-selection": "^3.0.0",
+    "d3-transition": "^3.0.1",
+    "d3-zoom": "^3.0.0"
+  },
+  "devDependencies": {
+    "fflate": "^0.8.2",
+    "vite": "^7.0.0"
+  }
+}

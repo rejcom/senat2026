@@ -11,7 +11,7 @@ npm run dev        # vývojový server na http://localhost:5173
 npm run build      # produkční build do dist/ (funguje z libovolného podadresáře)
 ```
 
-Demo výsledků před volbami (fiktivní čísla, jasně označená): `?demo=1` (průběžné sčítání), `?demo=2` (po 2. kole).
+Demo výsledků před volbami (fiktivní čísla, jasně označená): `?demo=1` (první výsledky, sečteno pár % okrsků), `?demo=2` (konec 1. kola), `?demo=3` (po 2. kole).
 
 ## Data
 

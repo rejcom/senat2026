@@ -350,7 +350,8 @@ const poller = createPoller({
 
 if (demoLevel) {
   $('demo-banner').hidden = false;
-  $('demo-banner').textContent = 'DEMO REŽIM – zobrazená čísla jsou vygenerovaná, nejde o skutečné výsledky voleb.';
+  const what = { 1: 'první výsledky (sečteno 5–40 % okrsků)', 2: 'konec 1. kola', 3: 'po 2. kole' }[demoLevel] ?? '';
+  $('demo-banner').textContent = `DEMO REŽIM${what ? ` – ${what}` : ''} – zobrazená čísla jsou vygenerovaná, nejde o skutečné výsledky voleb.`;
 }
 
 renderFooter();

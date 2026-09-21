@@ -15,8 +15,9 @@ function rng(seed) {
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /**
- * level 1 = probíhá sčítání 1. kola (část obvodů hotová)
- * level 2 = hotové 1. kolo a druhé kolo v obvodech bez zvoleného kandidáta
+ * level 1 = první výsledky: sečteno jen 5–40 % okrsků, žádný obvod není uzavřen
+ * level 2 = konec 1. kola: všude sečteno, část obvodů má zvoleného, zbytek míří do 2. kola
+ * level 3 = po 2. kole: rozhodnuto i v obvodech, které šly do druhého kola
  */
 export function demoXml(obvody, level) {
   const out = [];
@@ -30,7 +31,7 @@ export function demoXml(obvody, level) {
     const sum = weights.reduce((a, b) => a + b, 0);
     const voters = 60000 + Math.round(rand() * 60000);
     const precincts = 120 + Math.round(rand() * 200);
-    const done = level >= 2 || rand() > 0.4 ? precincts : Math.round(precincts * (0.3 + rand() * 0.6));
+    const done = level >= 2 ? precincts : Math.round(precincts * (0.05 + rand() * 0.35));
     const finished = done === precincts;
     const turnout = 0.3 + rand() * 0.1;
     const valid = Math.round(voters * turnout * (done / precincts));
@@ -48,7 +49,7 @@ export function demoXml(obvody, level) {
 
     let votes2 = null;
     let status2 = null;
-    if (level >= 2 && finished && !majority) {
+    if (level >= 3 && finished && !majority) {
       const [a, b] = order;
       const share = 0.5 + (rand() - 0.5) * 0.25;
       const v2 = Math.round(voters * (0.25 + rand() * 0.08));

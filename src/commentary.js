@@ -21,12 +21,48 @@ const dec = (x) => {
 };
 const plural = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);
 
+// Číslovky 0–100 slovy pro čtení nahlas. gender: 'm' | 'f' | 'n', ins = 7. pád (jinak 1. pád).
+const NUM = {
+  units: { m: ['nula', 'jeden', 'dva', 'tři', 'čtyři', 'pět', 'šest', 'sedm', 'osm', 'devět'], f: { 1: 'jedna', 2: 'dvě' }, n: { 1: 'jedno', 2: 'dvě' } },
+  teens: ['deset', 'jedenáct', 'dvanáct', 'třináct', 'čtrnáct', 'patnáct', 'šestnáct', 'sedmnáct', 'osmnáct', 'devatenáct'],
+  tens: ['', '', 'dvacet', 'třicet', 'čtyřicet', 'padesát', 'šedesát', 'sedmdesát', 'osmdesát', 'devadesát'],
+  insUnits: { m: ['nulou', 'jedním', 'dvěma', 'třemi', 'čtyřmi', 'pěti', 'šesti', 'sedmi', 'osmi', 'devíti'], f: { 0: 'nulou', 1: 'jednou' }, n: { 1: 'jedním' } },
+  insTeens: ['deseti', 'jedenácti', 'dvanácti', 'třinácti', 'čtrnácti', 'patnácti', 'šestnácti', 'sedmnácti', 'osmnácti', 'devatenácti'],
+  insTens: ['', '', 'dvaceti', 'třiceti', 'čtyřiceti', 'padesáti', 'šedesáti', 'sedmdesáti', 'osmdesáti', 'devadesáti'],
+};
+function words(n, gender = 'm', ins = false) {
+  n = Math.round(n);
+  if (n < 0 || n > 100) return String(n);
+  const unit = (u) => (ins ? NUM.insUnits[gender]?.[u] ?? NUM.insUnits.m[u] : NUM.units[gender]?.[u] ?? NUM.units.m[u]);
+  if (n === 100) return ins ? 'stem' : 'sto';
+  if (n < 10) return unit(n);
+  if (n < 20) return (ins ? NUM.insTeens : NUM.teens)[n - 10];
+  const t = (ins ? NUM.insTens : NUM.tens)[Math.floor(n / 10)];
+  return n % 10 === 0 ? t : `${t} ${unit(n % 10)}`;
+}
+// 19,7 → „devatenáct celých sedm desetin“ (v 7. pádě „devatenácti celými sedmi desetinami“)
+function decimalWords(r, ins = false) {
+  const whole = Math.floor(r + 1e-9);
+  const tenth = Math.round((r - whole) * 10);
+  if (whole > 100) return `${dec(r)}`;
+  const wholeWord = ins ? (whole === 1 ? 'celou' : 'celými') : plural(whole, 'celá', 'celé', 'celých');
+  const tenthWord = ins ? 'desetinami' : plural(tenth, 'desetina', 'desetiny', 'desetin');
+  const tenthIns = tenth === 1 ? 'desetinou' : tenthWord;
+  return `${words(whole, 'f', ins)} ${wholeWord} ${words(tenth, 'f', ins)} ${ins ? tenthIns : tenthWord}`;
+}
+
 const P = (x) => M('pct', x); // procenta
 const PI = (x) => M('pcti', x); // procenta v 7. pádě („s 17 procenty“)
 const PP = (x) => M('pp', x); // procentní body (rozdíl)
 const OBV = (id, name) => M('obv', id, name); // „Obvod č. 6 – Louny“ / „Obvod číslo 6, Louny“
 const PARTY = (label, spoken) => M('party', label, spoken ?? label);
 const OKR = (a, b) => M('okr', a, b);
+
+let numberWords = false;
+/** true = čísla v mluveném textu slovy (pro hlasy ze serveru), false = číslicemi (hlas prohlížeče) */
+export function setSpeechNumberWords(on) {
+  numberWords = !!on;
+}
 
 const RENDER = {
   screen: {
@@ -38,17 +74,27 @@ const RENDER = {
     okr: (a, b) => `${(+a).toLocaleString('cs-CZ')} z ${(+b).toLocaleString('cs-CZ')} okrsků`,
   },
   speech: {
+    // Hlas v prohlížeči (Windows) si desetinná čísla přečte správně sám. Serverové hlasy (Piper) řeknou „čárka“, tak jim čísla dáváme slovy.
     pct: (x) => {
       const r = Math.round(+x * 10) / 10;
-      return `${dec(r)} ${Number.isInteger(r) ? plural(r, 'procento', 'procenta', 'procent') : 'procenta'}`;
+      if (!numberWords) return `${dec(r)} ${Number.isInteger(r) ? plural(r, 'procento', 'procenta', 'procent') : 'procenta'}`;
+      return Number.isInteger(r)
+        ? `${words(r, 'n')} ${plural(r, 'procento', 'procenta', 'procent')}`
+        : `${decimalWords(r)} procenta`;
     },
     pcti: (x) => {
       const r = Math.round(+x * 10) / 10;
-      return `${dec(r)} ${Number.isInteger(r) ? (r === 1 ? 'procentem' : 'procenty') : 'procenta'}`;
+      if (!numberWords) return `${dec(r)} ${Number.isInteger(r) ? (r === 1 ? 'procentem' : 'procenty') : 'procenta'}`;
+      return Number.isInteger(r)
+        ? `${words(r, 'n', true)} ${r === 1 ? 'procentem' : 'procenty'}`
+        : `${decimalWords(r, true)} procenta`;
     },
     pp: (x) => {
       const r = Math.round(+x * 10) / 10;
-      return `${dec(r)} ${Number.isInteger(r) ? plural(r, 'procentní bod', 'procentní body', 'procentních bodů') : 'procentního bodu'}`;
+      if (!numberWords) return `${dec(r)} ${Number.isInteger(r) ? plural(r, 'procentní bod', 'procentní body', 'procentních bodů') : 'procentního bodu'}`;
+      return Number.isInteger(r)
+        ? `${words(r, 'm')} ${plural(r, 'procentní bod', 'procentní body', 'procentních bodů')}`
+        : `${decimalWords(r)} procentního bodu`;
     },
     obv: (id, name) => `Obvod číslo ${id}, ${name}`,
     party: (p, s) => s ?? p,
@@ -57,6 +103,12 @@ const RENDER = {
 };
 
 function render(tpl, mode) {
+  // při čtení „s sedmnácti procenty“ → „se sedmnácti procenty“ (předložka se před s/z)
+  if (mode === 'speech' && numberWords) tpl = tpl.replace(new RegExp(`\\bs (?=${A}pcti\\|)`, 'g'), '');
+  const out = renderMarkers(tpl, mode);
+  return mode === 'speech' ? out.replace(/(\S*)/g, (_, w) => `${/^[szšž]/i.test(w) ? 'se' : 's'} ${w}`) : out;
+}
+function renderMarkers(tpl, mode) {
   return tpl.replace(new RegExp(`${A}(\\w+)\\|([^${B}]*)${B}`, 'g'), (_, kind, args) => RENDER[mode][kind](...args.split('|')));
 }
 const compose = (tpl) => ({ text: render(tpl, 'screen'), speech: render(tpl, 'speech') });

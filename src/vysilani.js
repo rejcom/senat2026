@@ -7,7 +7,8 @@ import { RESULTS_URL, REFRESH_MS } from './config.js';
 import { createPoller, obvodResult } from './live.js';
 import { demoXml, demoNightXml } from './demo.js';
 import { createDirector } from './director.js';
-import { createSpeaker } from './speech.js';
+import { setSpeechNumberWords } from './commentary.js';
+import { createSpeaker, createServerSpeaker } from './speech.js';
 import { senateSvg, liveSeats } from './senate.js';
 import { esc, inkFor } from './cards.js';
 import { fmt1, fmtInt } from './stats.js';
@@ -344,7 +345,10 @@ function show(slot) {
 
 // ---------- hlas a hlavní smyčka ----------
 
-const speaker = createSpeaker({ rate });
+// hlas: v prohlížeči (výchozí) nebo ze serveru (?hlas=server, pro vysílání z počítače bez plochy)
+const serverVoice = params.get('hlas') === 'server';
+setSpeechNumberWords(serverVoice); // hlas ze serveru čte čísla slovy, hlas prohlížeče (Windows) číslicemi jako dřív
+const speaker = serverVoice ? createServerSpeaker({ rate }) : createSpeaker({ rate });
 let skipNow = null;
 const readMs = (text) => Math.min(28000, Math.max(9000, text.length * 70));
 
@@ -421,3 +425,6 @@ $('ticker').textContent = 'Neoficiální automatický přehled dat ČSÚ  ●  Z
 renderHeader();
 renderSeats();
 $('card').innerHTML = '<div class="oh"><div class="oh-name"><h2>Senátní volby 2026</h2><p>Spusťte vysílání tlačítkem.</p></div></div>';
+
+// ?autostart=1: vysílání se spustí samo (server bez plochy, kde nikdo neklikne)
+if (params.get('autostart')) $('go').click();

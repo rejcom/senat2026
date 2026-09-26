@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.claude
+promo
+deploy/stream/out
+deploy/stream/.env
+*.log

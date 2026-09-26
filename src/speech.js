@@ -61,3 +61,71 @@ export function createSpeaker({ rate = 1 } = {}) {
 
   return { init, speak, cancel, get voice() { return voice; } };
 }
+
+/**
+ * Hlas ze serveru (pro vysílání z počítače bez plochy, kde prohlížeč žádný český hlas nemá).
+ * Stejné rozhraní jako createSpeaker: init(), speak(text), cancel(), voice.
+ * Server (deploy/stream/server.mjs) vrací zvuk na GET /tts?text=…; věty se stahují předem najednou, přehrávají po sobě.
+ */
+export function createServerSpeaker({ endpoint = 'tts', rate = 1 } = {}) {
+  let voice = null;
+  let gen = 0;
+  let current = null;
+
+  async function init() {
+    try {
+      const j = await fetch(`${endpoint}/health`, { cache: 'no-store' }).then((r) => r.json());
+      if (!j.ok) return { ok: false, reason: j.reason ?? 'Hlasový server není připraven.' };
+      voice = { name: j.voice ?? j.engine };
+      return { ok: true, name: `${j.engine}${j.voice ? ` (${j.voice})` : ''}` };
+    } catch {
+      return { ok: false, reason: 'Hlasový server neodpovídá.' };
+    }
+  }
+
+  const play = (blobUrl, myGen) =>
+    new Promise((resolve) => {
+      if (myGen !== gen) return resolve();
+      const a = new Audio(blobUrl);
+      a.playbackRate = rate;
+      current = a;
+      const guard = setTimeout(resolve, 60000); // pojistka
+      const done = () => {
+        clearTimeout(guard);
+        resolve();
+      };
+      a.onended = done;
+      a.onerror = done;
+      a.play().catch(done);
+    });
+
+  async function speak(text) {
+    if (!voice) return;
+    const myGen = ++gen;
+    current?.pause();
+    const parts = text
+      .split(SENTENCE_END)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s) =>
+        fetch(`${endpoint}?text=${encodeURIComponent(s)}`)
+          .then((r) => (r.ok ? r.blob() : null))
+          .then((b) => (b ? URL.createObjectURL(b) : null))
+          .catch(() => null),
+      );
+    for (const p of parts) {
+      if (myGen !== gen) return;
+      const url = await p;
+      if (!url) continue; // věta se nepodařila vygenerovat, přeskočí se, komentář běží dál
+      await play(url, myGen);
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  function cancel() {
+    gen++;
+    current?.pause();
+  }
+
+  return { init, speak, cancel, get voice() { return voice; } };
+}

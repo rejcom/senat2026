@@ -34,7 +34,7 @@ K výsledkům čte česky komentář, psaný na obrazovce i mluvený (Web Speech
   Po obnovení nebo pádu řekne „Vysílání pokračuje“, ukáže přehled, znovu nic neoznamuje, ale dohlásí, co před pádem ještě nezaznělo. Opravené rozhodnutí ČSÚ se oznámí znovu.
   Paměť starší než 20 hodin se zahazuje (druhé kolo začne načisto). `?reset=1` ji smaže, doporučeno před ostrým vysíláním, pokud jste stránku zkoušeli na živých datech. Demo (`?demo=…`) paměť nepoužívá.
 - **Zkouška:** `vysilani.html?demo=noc` přehraje celý večer za 10 minut (`&min=3` = 3 minuty), vše fiktivní a označené „DEMO“. `?demo=1|2|3` jsou statické fáze.
-- **Do LinkedIn Live:** stránku otevřít v Edge/Chrome a v OBS ji zachytit jako okno (zdroj „Zachytávání okna“) a zvuk počítače (zdroj „Zachytávání zvuku plochy“).
+- **Do LinkedIn Live:** **podrobný postup je v [NAVOD-STREAM.md](NAVOD-STREAM.md)** (OBS, LinkedIn, časový postup dne, řešení potíží). Stručně: stránku otevřít v Edge/Chrome a v OBS ji zachytit jako okno (zdroj „Zachytávání okna“) a zvuk počítače (zdroj „Zachytávání zvuku plochy“).
   LinkedIn Live vyžaduje povolení, streamovací nástroj (OBS / StreamYard / Restream) a předem naplánovanou událost, podmínky ověřte přímo na LinkedInu.
 
 ### Výslovnost stran (`vyslovnost.html`)

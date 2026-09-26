@@ -1,0 +1,5 @@
+# skripty a konfigurace pro Linux musí mít vždy konce řádků LF (jinak na serveru nepoběží)
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+deploy/stream/*.mjs text eol=lf

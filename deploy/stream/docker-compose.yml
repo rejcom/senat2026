@@ -1,0 +1,29 @@
+# Vysílací kontejner. Spuštění a ovládání: ./stream.sh (viz README.md v této složce)
+services:
+  stream:
+    build:
+      context: ../..
+      dockerfile: deploy/stream/Dockerfile
+    image: senat2026-stream
+    restart: unless-stopped
+    shm_size: 1gb
+    environment:
+      MODE: ${MODE:-stream}                       # stream = na LinkedIn, file = nahrávat do souboru (zkouška)
+      AUTOSTART: ${AUTOSTART:-0}                  # 1 = vysílání se spustí samo po startu kontejneru
+      PAGE_QUERY: ${PAGE_QUERY:-?autostart=1&hlas=server&bezovladani=1}
+      TTS_ENGINE: ${TTS_ENGINE:-piper}            # piper | azure | off
+      PIPER_LENGTH_SCALE: ${PIPER_LENGTH_SCALE:-0.8}   # tempo Piperu: méně = rychleji (1.0 je pomalé, 0.7 už zní stísněně)
+      AZURE_SPEECH_KEY: ${AZURE_SPEECH_KEY:-}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-westeurope}
+      AZURE_VOICE: ${AZURE_VOICE:-cs-CZ-VlastaNeural}
+      V_BITRATE: ${V_BITRATE:-4500k}
+      DURATION: ${DURATION:-60}
+      OUT_NAME: ${OUT_NAME:-test.mkv}
+    volumes:
+      - streamdata:/data        # profil prohlížeče (paměť vysílání!), mezipaměť hlasu, logy, klíč k přenosu
+      - ./out:/out
+    ports:
+      - "127.0.0.1:8787:8787"   # jen z tohoto počítače: kontrola stránky a hlasu při ladění
+
+volumes:
+  streamdata:

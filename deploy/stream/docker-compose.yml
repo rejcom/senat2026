@@ -17,6 +17,8 @@ services:
       AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-westeurope}
       AZURE_VOICE: ${AZURE_VOICE:-cs-CZ-VlastaNeural}
       V_BITRATE: ${V_BITRATE:-4500k}
+      FPS: ${FPS:-30}                             # snímků za sekundu (na slabším serveru zkuste 25)
+      X264_PRESET: ${X264_PRESET:-veryfast}       # rychlejší kodér = menší zátěž procesoru: superfast, ultrafast
       DURATION: ${DURATION:-60}
       OUT_NAME: ${OUT_NAME:-test.mkv}
     volumes:

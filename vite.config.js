@@ -8,6 +8,13 @@ export default defineConfig({
   base: './',
   build: {
     target: 'es2022',
-    rollupOptions: { input: { main: page('./index.html'), vysilani: page('./vysilani.html'), vyslovnost: page('./vyslovnost.html') } },
+    rollupOptions: {
+      input: {
+        main: page('./index.html'),
+        vysilani: page('./vysilani.html'),
+        vyslovnost: page('./vyslovnost.html'),
+        radnice: page('./radnice.html'),
+      },
+    },
   },
 });

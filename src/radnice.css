@@ -1,0 +1,89 @@
+/* Zastupitelstva měst 2026 – styly specifické pro tuto stránku (sdílené tokeny, karty a .site-nav jsou v style.css) */
+
+.kv-main { max-width: 900px; margin: 0 auto 16px; padding: 0 16px; }
+
+.kv-map-wrap { margin-bottom: 14px; }
+.kv-map {
+  display: block;
+  width: 100%;
+  max-height: 340px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: visible;
+}
+.kv-map-base { fill: var(--map-empty); stroke: var(--map-stroke); stroke-width: 1; }
+.kv-map-city { cursor: pointer; }
+.kv-map-city circle { fill: var(--muted); stroke: var(--halo); stroke-width: 2; transition: fill 0.2s; }
+.kv-map-city:hover circle, .kv-map-city:focus-visible circle { stroke: var(--accent); }
+.kv-map-city text { fill: var(--ink); font-size: 15px; font-weight: 600; paint-order: stroke; stroke: var(--card); stroke-width: 3px; }
+.kv-map-note { margin: 6px 0 0; font-size: 12px; text-align: center; }
+
+.kv-tabs { margin-bottom: 12px; }
+.kv-tabs button { font-size: 14.5px; padding: 7px 16px; }
+
+.kv-list { display: flex; flex-direction: column; gap: 8px; }
+
+.kv-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.kv-card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.kv-card-head:hover { background: var(--bg); }
+.kv-bar { width: 5px; align-self: stretch; border-radius: 2px; background: var(--kv-color); flex: none; }
+.kv-name { flex: 1 1 260px; min-width: 0; overflow-wrap: anywhere; }
+.kv-tag {
+  display: inline-block;
+  color: #fff;
+  border-radius: 3px;
+  padding: 1px 7px;
+  font-size: 11.5px;
+  font-weight: 600;
+  vertical-align: 1px;
+}
+.kv-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; white-space: nowrap; }
+.kv-votes { font-variant-numeric: tabular-nums; }
+.kv-seats {
+  background: var(--kv-color);
+  color: #fff;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-weight: 600;
+  font-size: 12.5px;
+}
+.kv-chevron { color: var(--muted); font-size: 11px; flex: none; }
+.kv-progress { height: 4px; background: var(--bg); }
+.kv-progress i { display: block; height: 100%; }
+
+.kv-candidates {
+  list-style: none;
+  margin: 0;
+  padding: 4px 14px 12px 16px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.kv-candidates li { padding-top: 8px; }
+.kv-c-no { color: var(--muted); }
+
+.kv-note { max-width: 900px; margin: 14px auto 0; padding: 0 16px; font-size: 12.5px; }
+
+@media (max-width: 560px) {
+  .kv-card-head { flex-wrap: wrap; }
+  .kv-meta { width: 100%; justify-content: space-between; }
+}

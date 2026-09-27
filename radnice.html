@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Zastupitelstva měst 2026 – Plzeň, Klatovy, Domažlice, Nýrsko</title>
+    <meta
+      name="description"
+      content="Kandidátní listiny a živé výsledky komunálních voleb 2026 v Plzni, Klatovech, Domažlicích a Nýrsku. Data z otevřených dat ČSÚ."
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f4e8c'/%3E%3Cpath d='M8 21l4-10 4 6 3-4 5 8z' fill='%23fff'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="top-title">
+        <h1>Zastupitelstva měst 2026</h1>
+        <p class="muted">Komunální volby 9.–10. 10. 2026 · kandidátní listiny a živé výsledky přímo z ČSÚ</p>
+      </div>
+      <nav class="site-nav">
+        <a href="./index.html">Senátní volby</a>
+        <a href="./vysilani.html">Vysílání</a>
+      </nav>
+    </header>
+
+    <main class="kv-main">
+      <div class="kv-map-wrap">
+        <svg id="kv-map" class="kv-map" viewBox="0 0 700 460" role="group" aria-label="Mapa: poloha sledovaných měst"></svg>
+        <p class="kv-map-note muted">Klikněte na město na mapě, nebo vyberte v seznamu níže.</p>
+      </div>
+
+      <div id="kv-tabs" class="seg kv-tabs" role="group" aria-label="Výběr města"></div>
+
+      <section id="kv-kpis" class="kpis" aria-label="Souhrnné statistiky za město"></section>
+
+      <section id="kv-list" class="kv-list" aria-label="Kandidátní listiny"></section>
+
+      <p class="kv-note muted">
+        Řazení listin: dokud nejsou spočteny hlasy, podle pořadí na hlasovacím lístku; po sečtení podle počtu hlasů.
+        Kdo z kandidátů skutečně získá mandát, rozhoduje kromě pořadí na listině i počet přednostních hlasů od voličů –
+        to ČSÚ zveřejňuje až po dopočtu, tato stránka ukazuje výsledky za celé listiny.
+      </p>
+    </main>
+
+    <footer class="foot">
+      <div>Data: otevřená data Českého statistického úřadu, <a href="https://volby.gov.cz/" target="_blank" rel="noopener">volby.gov.cz</a>. Neoficiální automatický přehled, závazné výsledky jsou na volby.gov.cz.</div>
+    </footer>
+
+    <script type="module" src="/src/radnice.js"></script>
+  </body>
+</html>

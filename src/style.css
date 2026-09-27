@@ -98,6 +98,10 @@ button { font: inherit; color: inherit; }
 }
 .status button:hover { background: var(--bg); }
 
+.site-nav { display: flex; gap: 14px; align-items: center; }
+.site-nav a { color: var(--accent); text-decoration: none; font-size: 13.5px; }
+.site-nav a:hover { text-decoration: underline; }
+
 /* ---------- karty a KPI ---------- */
 .card {
   background: var(--card);

@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "data:senate": "node scripts/build-data.mjs --refresh-senate"
+    "data:senate": "node scripts/build-data.mjs --refresh-senate",
+    "data:kv": "node scripts/build-kv-data.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

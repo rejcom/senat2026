@@ -19,6 +19,11 @@
 .kv-map-city text { fill: var(--ink); font-size: 15px; font-weight: 600; paint-order: stroke; stroke: var(--card); stroke-width: 3px; }
 .kv-map-note { margin: 6px 0 0; font-size: 12px; text-align: center; }
 
+.kv-current { margin-bottom: 12px; }
+.kv-current-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; font-size: 13px; }
+.kv-current-item { display: inline-flex; align-items: center; gap: 5px; }
+.kv-current-item i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
 .kv-tabs { margin-bottom: 12px; }
 .kv-tabs button { font-size: 14.5px; padding: 7px 16px; }
 

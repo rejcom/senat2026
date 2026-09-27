@@ -11,6 +11,7 @@ const REFRESH_MS = 60_000;
 
 const tabsEl = document.getElementById('kv-tabs');
 const kpisEl = document.getElementById('kv-kpis');
+const currentEl = document.getElementById('kv-current');
 const listEl = document.getElementById('kv-list');
 const mapSvg = document.getElementById('kv-map');
 
@@ -57,11 +58,37 @@ function renderKpis(city, result) {
       { l: 'Účast', v: result.ucast.okrskyZprac ? `${fmtPct(result.ucast.ucastProc)} %` : '–' },
     );
   }
+  const obhajuje = city.listiny.reduce((s, l) => s + l.kandidati.filter((c) => c.obhajuje).length, 0);
+  if (obhajuje) items.push({ l: 'Obhajuje mandát', v: obhajuje, s: 'ze současného zastupitelstva 2022' });
   kpisEl.innerHTML = items
     .map(
       (it) => `<div class="kpi"><div class="kpi-l">${it.l}</div><div class="kpi-v">${it.v ?? '–'}</div>${it.s ? `<div class="kpi-s">${it.s}</div>` : ''}</div>`,
     )
     .join('');
+}
+
+function renderCurrent(city) {
+  const rows = city.soucasneZastupitelstvo ?? [];
+  if (!rows.length) {
+    currentEl.innerHTML = '';
+    currentEl.hidden = true;
+    return;
+  }
+  currentEl.hidden = false;
+  const total = rows.reduce((s, r) => s + r.mandaty, 0);
+  const bar = rows
+    .map((r) => `<i style="width:${(r.mandaty / total) * 100}%;background:${kvPartyStyle(r.nazev).color}" title="${esc(r.nazev)}: ${r.mandaty} mandátů"></i>`)
+    .join('');
+  const legend = rows
+    .map(
+      (r) =>
+        `<span class="kv-current-item"><i style="background:${kvPartyStyle(r.nazev).color}"></i>${esc(r.nazev)} <b>${r.mandaty}</b></span>`,
+    )
+    .join('');
+  currentEl.innerHTML = `
+    <div class="card-head"><h2>Současné zastupitelstvo (volby 2022)</h2></div>
+    <div class="gbar">${bar}</div>
+    <div class="kv-current-legend">${legend}</div>`;
 }
 
 function renderList(city, result) {
@@ -95,7 +122,9 @@ function renderList(city, result) {
               ${list.zkratka && list.zkratka !== list.nazev ? `<span class="muted"> (${esc(list.zkratka)})</span>` : ''}
             </span>
             <span class="kv-meta">
-              <span class="muted">${list.kandidati.length} kandidátů</span>
+              <span class="muted">${list.kandidati.length} kandidátů${
+                list.kandidati.some((c) => c.obhajuje) ? `, ${list.kandidati.filter((c) => c.obhajuje).length}× obhajuje` : ''
+              }</span>
               ${voteInfo}
               ${seatsBadge}
             </span>
@@ -121,8 +150,8 @@ function renderCandidates(list) {
   const rows = list.kandidati
     .map(
       (c) => `<li><span class="kv-c-no">${c.poradi}.</span> <b>${esc(fullName(c))}</b>${c.vek ? `, ${c.vek} let` : ''}${
-        c.povolani ? `<br><span class="muted">${esc(c.povolani)}${c.bydliste ? ` · ${esc(c.bydliste)}` : ''}</span>` : ''
-      }</li>`,
+        c.obhajuje ? ' <span class="badge badge--def" title="Je členem současného zastupitelstva zvoleného v roce 2022 a kandiduje znovu">obhajuje mandát</span>' : ''
+      }${c.povolani ? `<br><span class="muted">${esc(c.povolani)}${c.bydliste ? ` · ${esc(c.bydliste)}` : ''}</span>` : ''}</li>`,
     )
     .join('');
   return `<ol class="kv-candidates">${rows}</ol>`;
@@ -137,6 +166,7 @@ function render() {
   const result = state.results.get(city.kodzastup) ?? null;
   renderTabs();
   renderKpis(city, result);
+  renderCurrent(city);
   renderList(city, result);
 }
 

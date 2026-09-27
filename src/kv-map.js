@@ -46,7 +46,7 @@ export function initKvMap(svg, geo, mesta, onPick) {
 
   // Přiblížení na obdélník kolem sledovaných měst (stejná projekce, jen jiný výřez).
   const pts = Object.values(CITY_COORDS).map((c) => projection(c.lonLat));
-  const pad = 75;
+  const pad = 110;
   const x0 = Math.min(...pts.map((p) => p[0])) - pad;
   const x1 = Math.max(...pts.map((p) => p[0])) + pad;
   const y0 = Math.min(...pts.map((p) => p[1])) - pad;

@@ -10,7 +10,7 @@
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 4px;
-  overflow: visible;
+  overflow: hidden;
 }
 .kv-map-base { fill: var(--map-empty); stroke: var(--map-stroke); stroke-width: 1; }
 .kv-map-city { cursor: pointer; }

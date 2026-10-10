@@ -149,6 +149,54 @@ function renderKpis() {
   $('kpis').innerHTML = html;
 }
 
+/** Panel „2. kolo“: co ČSÚ oficiálně potvrdil, a obvody se sečtenými okrsky, kde ČSÚ stav ještě nenastavil (jen předběžně). */
+function renderRunoff() {
+  const el = $('runoff-card');
+  if (!state.anyVotes) {
+    el.hidden = true;
+    return;
+  }
+  const sec = (title, note, body) => `<div class="ro-sec"><h3>${title}</h3>${note ? `<p class="muted ro-note">${note}</p>` : ''}${body}</div>`;
+  const cand = (x, pct) =>
+    `<span class="ro-cand">${chip(x.c.party)} <b>${esc(fullName(x.c, { titles: false }))}</b>${
+      x.c.defends ? ' <span class="badge badge--def">obhajuje</span>' : ''
+    } <span class="muted">${fmt1(pct)} %</span></span>`;
+  const item = (o, inner) => `<li><span class="ro-ob"><b>${o.id}</b> ${esc(o.name)}</span><span class="ro-pair">${inner}</span></li>`;
+  const full = (r) => r.turnout?.precinctsTotal && r.turnout.precinctsDone >= r.turnout.precinctsTotal;
+
+  const all = data.obvody.map((o) => ({ o, r: state.resMap.get(o.id) })).filter((x) => x.r?.hasVotes);
+  const confirmed = all.filter(({ r }) => r.state === 'runoff');
+  const prelim = all.filter(({ r }) => r.state === 'counting' && r.round === 1 && full(r));
+  const counting = data.obvody.length - all.filter(({ r }) => r.state === 'elected' || r.state === 'runoff').length - prelim.length;
+
+  let html = `<div class="card-head"><h2 id="runoff-h">Postup do 2. kola (16.–17. 10.)</h2></div>`;
+  html += sec(
+    `Potvrzeno ČSÚ (${confirmed.length})`,
+    confirmed.length ? '' : 'ČSÚ zatím žádný postup do 2. kola nepotvrdil.',
+    confirmed.length
+      ? `<ul class="ro-list">${confirmed.map(({ o, r }) => item(o, r.advancing.map((x) => cand(x, x.pct1)).join('<span class="ro-vs">×</span>'))).join('')}</ul>`
+      : '',
+  );
+  if (prelim.length) {
+    const rowsHtml = prelim
+      .map(({ o, r }) => {
+        const [a, b] = r.rows;
+        return a.pct1 > 50
+          ? item(o, `${cand(a, a.pct1)} <span class="muted">má víc než polovinu hlasů → po potvrzení zvolen(a) už v 1. kole</span>`)
+          : item(o, `${cand(a, a.pct1)}<span class="ro-vs">×</span>${cand(b, b.pct1)}`);
+      })
+      .join('');
+    html += sec(
+      `Sečteno 100 % okrsků, výsledek zatím ČSÚ nepotvrdil (${prelim.length})`,
+      'Předběžný přepočet z hlasů: zvolen je, kdo získal víc než 50 % platných hlasů, jinak postupují dva nejlepší. Závazné je až vyhlášení ČSÚ.',
+      `<ul class="ro-list ro-list--prelim">${rowsHtml}</ul>`,
+    );
+  }
+  if (counting > 0) html += `<p class="muted ro-foot">Ještě se sčítá nebo čeká: ${counting} ${counting === 1 ? 'obvod' : counting < 5 ? 'obvody' : 'obvodů'}.</p>`;
+  el.hidden = false;
+  el.innerHTML = html;
+}
+
 function renderStatus() {
   const s = state.status;
   const el = $('status');
@@ -342,6 +390,7 @@ function renderAll() {
   renderSubtitle();
   renderStatus();
   renderKpis();
+  renderRunoff();
   renderModes();
   renderMap();
   renderLegend();

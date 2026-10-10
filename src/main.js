@@ -165,11 +165,24 @@ function renderRunoff() {
   const full = (r) => r.turnout?.precinctsTotal && r.turnout.precinctsDone >= r.turnout.precinctsTotal;
 
   const all = data.obvody.map((o) => ({ o, r: state.resMap.get(o.id) })).filter((x) => x.r?.hasVotes);
+  const electedNow = all.filter(({ r }) => r.state === 'elected');
   const confirmed = all.filter(({ r }) => r.state === 'runoff');
   const prelim = all.filter(({ r }) => r.state === 'counting' && r.round === 1 && full(r));
   const counting = data.obvody.length - all.filter(({ r }) => r.state === 'elected' || r.state === 'runoff').length - prelim.length;
 
-  let html = `<div class="card-head"><h2 id="runoff-h">Postup do 2. kola (16.–17. 10.)</h2></div>`;
+  let html = `<div class="card-head"><h2 id="runoff-h">Zvolení a postup do 2. kola (16.–17. 10.)</h2></div>`;
+  if (electedNow.length) {
+    html += sec(
+      `Zvoleni, potvrzeno ČSÚ (${electedNow.length})`,
+      '',
+      `<ul class="ro-list">${electedNow
+        .map(({ o, r }) => {
+          const second = r.round === 2;
+          return item(o, `${cand(r.elected, second ? r.elected.pct2 : r.elected.pct1)} <span class="badge badge--won">zvolen(a)</span>${second ? ' <span class="muted">ve 2. kole</span>' : ' <span class="muted">už v 1. kole</span>'}`);
+        })
+        .join('')}</ul>`,
+    );
+  }
   html += sec(
     `Potvrzeno ČSÚ (${confirmed.length})`,
     confirmed.length ? '' : 'ČSÚ zatím žádný postup do 2. kola nepotvrdil.',

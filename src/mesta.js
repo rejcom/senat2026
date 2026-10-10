@@ -7,7 +7,7 @@ import { geoMercator, geoPath } from 'd3-geo';
 import { kvPartyStyle } from './kv-party.js';
 import { fetchKvResult } from './kv-live.js';
 
-const REFRESH_MS = 90_000;
+const REFRESH_MS = 120_000;
 const CONCURRENCY = 8;
 const SVGNS = 'http://www.w3.org/2000/svg';
 const MAP_W = 700;

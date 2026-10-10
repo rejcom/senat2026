@@ -7,8 +7,10 @@ const xmlUnescape = (s) =>
 
 /** Načte a rozparsuje výsledky jednoho zastupitelstva (KODZASTUP) z appdata ČSÚ. */
 export async function fetchKvResult(resultsBase, kodzastup) {
-  const url = `${resultsBase}vysledky_obec_${kodzastup}.xml`;
-  const res = await fetch(url, { cache: 'no-store' });
+  // Bez vlastních hlaviček (cache: 'no-store' je v novějších prohlížečích přidává): server ČSÚ nepodporuje „preflight“
+  // dotaz OPTIONS, takže by prohlížeč požadavek zablokoval. Čerstvost zajišťuje parametr v adrese.
+  const url = `${resultsBase}vysledky_obec_${kodzastup}.xml?t=${Math.floor(Date.now() / 30_000)}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return parseKvResult(await res.text());
 }

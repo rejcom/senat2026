@@ -4,6 +4,8 @@ cd "$(dirname "$0")" || exit 1
 mkdir -p out
 dc() { docker compose "$@"; }
 inx() { dc exec -T -u node stream "$@"; }
+# ffmpeg v chybách vypisuje celou adresu přenosu včetně klíče; ve výpisech se klíč zakryje, ať ho nikdo omylem neprozradí
+mask() { sed -E 's#(rtmps?://[^/ ]+/[^/ ]+/)[^ :]+#\1***#g'; }
 
 case "${1:-help}" in
   up)          dc up -d --build ;;                                   # sestaví a spustí kontejner (vysílání zatím nezačne)
@@ -16,8 +18,8 @@ case "${1:-help}" in
   start)       dc up -d && inx /app/ctl.sh start ;;
   stop)        inx /app/ctl.sh stop ;;
   restart)     inx /app/ctl.sh stop; sleep 2; inx /app/ctl.sh start ;;
-  status)      inx /app/ctl.sh status ;;
-  logs)        inx sh -c 'echo "--- hlídač"; tail -n 15 /data/log/supervise.log; echo "--- přenos"; tr "\r" "\n" < /data/log/ffmpeg.log | tail -n 8; echo "--- server"; tail -n 8 /data/log/server.log' ;;
+  status)      inx /app/ctl.sh status | mask ;;
+  logs)        inx sh -c 'echo "--- hlídač"; tail -n 15 /data/log/supervise.log; echo "--- přenos"; tr "\r" "\n" < /data/log/ffmpeg.log | tail -n 8; echo "--- server"; tail -n 8 /data/log/server.log' | mask ;;
   screenshot)  inx /app/ctl.sh screenshot && echo "Snímek je v: $(pwd)/out/screenshot.png" ;;
   down)        dc down ;;
   *)           sed -n '2p' "$0" ;;

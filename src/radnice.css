@@ -92,3 +92,27 @@
   .kv-card-head { flex-wrap: wrap; }
   .kv-meta { width: 100%; justify-content: space-between; }
 }
+
+/* ---------- Okresní a krajská města (mesta.html) ---------- */
+.ms-main { max-width: 1180px; margin: 0 auto 16px; padding: 0 16px; }
+.ms-main .kpis { margin-bottom: 12px; }
+.ms-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; margin-bottom: 12px; align-items: start; }
+@media (max-width: 900px) { .ms-grid { grid-template-columns: 1fr; } }
+.ms-map { display: block; width: 100%; height: auto; background: var(--card); overflow: hidden; }
+.ms-dot { stroke: var(--halo); stroke-width: 1.2; cursor: pointer; transition: fill 0.2s; }
+.ms-dot:hover, .ms-dot:focus-visible { stroke: var(--accent); stroke-width: 2.4; }
+.ms-dot--changed { stroke: #111; stroke-width: 2.6; }
+.ms-ring { width: 9px; height: 9px; border-radius: 50%; border: 2.5px solid #111; background: transparent; box-sizing: border-box; display: inline-block; }
+.ms-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12.5px; }
+.ms-sub { margin-top: 18px; }
+.ms-win { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 8px; align-items: center; margin: 5px 0; font-size: 13.5px; }
+.ms-win-bar { background: var(--bg); height: 10px; border-radius: 2px; overflow: hidden; }
+.ms-win-bar i { display: block; height: 100%; }
+.ms-changes { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 13.5px; }
+.ms-table-card { margin-bottom: 12px; }
+.ms-table-wrap { overflow-x: auto; }
+.ms-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.ms-table th { text-align: left; font-weight: 600; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.ms-table td { padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.ms-table .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ms-table tr.ms-hl { background: color-mix(in srgb, var(--accent) 14%, transparent); }

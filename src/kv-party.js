@@ -6,7 +6,7 @@
 const KNOWN = [
   [/\bANO\b/i, '#5b3aa0', 'ANO'],
   [/\bSPD\b/i, '#7c4a2d', 'SPD'],
-  [/starostové a nezávislí|\bSTAN\b/i, '#e0357f', 'STAN'],
+  [/starostové|\bSTAN\b/i, '#e0357f', 'STAN'],
   [/občanská demokratická strana|\bODS\b/i, '#1f77d0', 'ODS'],
   [/komunistická strana|\bKSČM\b/i, '#b71c1c', 'KSČM'],
   [/KDU-ČSL/i, '#e0b000', 'KDU-ČSL'],
@@ -36,9 +36,13 @@ export function kvPartyStyle(nazev) {
   // „… s podporou X“ znamená jen podporu, ne že je X skutečnou součástí listiny – při rozpoznávání se to nepočítá,
   // jinak by např. „PRO PLZEŇ s podporou lidovců“ vyšlo jako KDU-ČSL.
   const core = nazev.replace(/\bs podporou\b.*$/i, '').trim();
+  // u koalic („SPOLU – ODS, KDU-ČSL, TOP 09“) platí strana uvedená v názvu první, ne první ze seznamu níže
+  let best = null;
   for (const [re, color, label] of KNOWN) {
-    if (re.test(core)) return { color, label };
+    const at = core.search(re);
+    if (at >= 0 && (!best || at < best.at)) best = { at, color, label };
   }
+  if (best) return { color: best.color, label: best.label };
   const color = LOCAL_PALETTE[hash(nazev) % LOCAL_PALETTE.length];
   return { color, label: null };
 }

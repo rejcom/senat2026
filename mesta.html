@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Okresní a krajská města 2026 – kdo vyhrává komunální volby</title>
+    <meta
+      name="description"
+      content="Vítěz komunálních voleb 2026 v krajských a okresních městech na mapě, porovnání s rokem 2022. Živá data z ČSÚ."
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f4e8c'/%3E%3Cpath d='M8 21l4-10 4 6 3-4 5 8z' fill='%23fff'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="top-title">
+        <h1>Okresní a krajská města 2026</h1>
+        <p class="muted">Kdo vyhrává komunální volby 9.–10. 10. 2026 · porovnání s rokem 2022 · živě z ČSÚ</p>
+      </div>
+      <nav class="site-nav">
+        <a href="./radnice.html">Zastupitelstva (Plzeňsko)</a>
+        <a href="./index.html">Senátní volby</a>
+        <a href="./vysilani.html">Vysílání</a>
+      </nav>
+    </header>
+
+    <main class="ms-main">
+      <section id="ms-kpis" class="kpis" aria-label="Souhrn"></section>
+
+      <div class="ms-grid">
+        <section class="card">
+          <div class="card-head"><h2>Mapa vítězů</h2></div>
+          <svg id="ms-map" class="ms-map" viewBox="0 0 700 460" role="group" aria-label="Mapa: vítěz voleb v okresních a krajských městech"></svg>
+          <div id="ms-legend" class="ms-legend"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Kdo vyhrává</h2></div>
+          <div id="ms-wins"></div>
+          <div class="card-head ms-sub"><h2>Změna proti roku 2022</h2></div>
+          <div id="ms-changes"></div>
+        </section>
+      </div>
+
+      <section class="card ms-table-card">
+        <div class="card-head">
+          <h2>Všechna města</h2>
+          <div id="ms-filter" class="seg" role="group" aria-label="Typ města"></div>
+        </div>
+        <div class="ms-table-wrap"><table id="ms-table" class="ms-table"></table></div>
+      </section>
+
+      <p class="kv-note muted">
+        Vítěz = kandidátní listina s nejvyšším počtem hlasů (u neúplného sčítání jen průběžně). Barva podle strany
+        uvedené v názvu listiny jako první; u koalic a sdružení tedy jde o zjednodušení, přesný název listiny je vždy
+        v tabulce. „Místní“ jsou listiny, v jejichž názvu není žádná z parlamentních stran. Změna vítěze se hodnotí podle
+        strany, ne podle konkrétní listiny, protože se koalice mezi volbami mění. Rok 2022: uzavřené výsledky ČSÚ.
+      </p>
+    </main>
+
+    <footer class="foot">
+      <div>Data: otevřená data Českého statistického úřadu, <a href="https://volby.gov.cz/" target="_blank" rel="noopener">volby.gov.cz</a>. Neoficiální automatický přehled, závazné výsledky jsou na volby.gov.cz.</div>
+    </footer>
+
+    <script type="module" src="/src/mesta.js"></script>
+  </body>
+</html>

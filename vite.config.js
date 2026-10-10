@@ -14,6 +14,7 @@ export default defineConfig({
         vysilani: page('./vysilani.html'),
         vyslovnost: page('./vyslovnost.html'),
         radnice: page('./radnice.html'),
+        mesta: page('./mesta.html'),
       },
     },
   },

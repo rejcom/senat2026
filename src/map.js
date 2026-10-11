@@ -198,21 +198,27 @@ export function createMap(container, { data, onHover, onLeave, onSelect }) {
       it.path.classList.toggle('is-selected', state.selected === o.id);
       it.path.classList.toggle('is-elected', !!res?.elected && state.mode === 'leader');
 
-      // tečky kandidátů
+      // tečky kandidátů (v režimu „vedoucí / zvolený“ po 1. kole: u zvoleného jen vítěz, u postupujících jen ti dva, kdo jdou do 2. kola)
       it.marks.replaceChildren();
-      const n = o.candidates.length;
+      let shown = o.candidates;
+      let winLabel = null;
+      if (state.mode === 'leader' && res) {
+        if (res.elected) {
+          shown = [res.elected.c];
+          winLabel = res.elected.c.lastName;
+        } else if (res.advancing.length >= 2) shown = res.advancing.map((x) => x.c);
+      }
+      const n = shown.length;
       const { pts, width, height } = dotLayout(n, DOT_SP);
-      it.dotsWidth = width + 2 * DOT_R;
-      const totalH = 13 + height + 2 * DOT_R + 4;
+      it.dotsWidth = Math.max(width + 2 * DOT_R, winLabel ? 8 * winLabel.length : 0);
+      const labelH = winLabel ? 11 : 0;
+      const totalH = 13 + height + 2 * DOT_R + 4 + labelH;
       const top = -totalH / 2;
       const g = el('g');
       g.append(el('text', { class: 'obvod-no', x: 0, y: top + 10, 'text-anchor': 'middle' }, String(o.id)));
       const dots = el('g', { class: 'dots' });
-      o.candidates.forEach((c, i) => {
-        const dim =
-          (state.partyFilter && c.party.key !== state.partyFilter) ||
-          (res && res.state !== 'counting' && res.advancing.length && res.round === 1 && !res.advancing.some((a) => a.c === c)) ||
-          (res?.elected && res.elected.c !== c);
+      shown.forEach((c, i) => {
+        const dim = state.partyFilter && c.party.key !== state.partyFilter;
         const dot = el('circle', {
           cx: pts[i].x,
           cy: top + 13 + DOT_R + 4 + pts[i].y,
@@ -222,6 +228,7 @@ export function createMap(container, { data, onHover, onLeave, onSelect }) {
         });
         dots.append(dot);
       });
+      if (winLabel) dots.append(el('text', { class: 'obvod-win', x: 0, y: top + 13 + height + 2 * DOT_R + 13, 'text-anchor': 'middle' }, winLabel));
       g.append(dots);
       it.marks.append(g);
     }

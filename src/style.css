@@ -150,6 +150,7 @@ button { font: inherit; color: inherit; }
 .obvod:focus-visible { stroke: var(--accent); stroke-width: 3; }
 .obvod.is-elected { stroke: #d4a017; stroke-width: 2; }
 .obvod-no { font: 700 11px var(--font); fill: var(--ink); paint-order: stroke; stroke: var(--halo); stroke-width: 3px; stroke-linejoin: round; }
+.obvod-win { font: 700 9.5px var(--font); fill: var(--ink); paint-order: stroke; stroke: var(--halo); stroke-width: 3px; stroke-linejoin: round; }
 .marks--compact .dots { display: none; }
 .dot { stroke: #fff; stroke-width: 1; }
 @media (prefers-color-scheme: dark) { .dot { stroke: #1b1a19; } }

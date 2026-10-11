@@ -464,14 +464,18 @@ function renderSide() {
         const res = state.resMap.get(o.id);
         const inc = o.incumbent;
         const lead = res?.elected ?? res?.leader;
-        const sub = lead
+        // po 1. kole jen ti, kdo jsou ve hře: u zvoleného vítěz, u postupujících ti dva
+        const inPlay = res?.elected ? [res.elected.c] : res?.advancing?.length >= 2 ? res.advancing.map((x) => x.c) : o.candidates;
+        const sub = res?.advancing?.length >= 2 && !res.elected
+          ? `do 2. kola: ${esc(res.advancing.map((x) => x.c.lastName).join(' × '))}`
+          : lead
           ? `${res.elected ? 'zvolen(a)' : 'vede'}: ${esc(fullName(lead.c, { titles: false }))}`
           : inc
             ? `senátor: ${esc(fullName(inc, { titles: false }))}${inc.running ? '' : ' (nekandiduje)'}`
             : `${o.candidates.length} kandidátů`;
         return `<li><button type="button" data-id="${o.id}"><span class="no">${o.id}</span>
           <span class="nm">${esc(o.name)}<small>${sub}</small></span>
-          <span class="dots" aria-hidden="true">${o.candidates.map((c) => `<i class="${c.defends ? 'd' : ''}" style="background:${c.party.color}"></i>`).join('')}</span></button></li>`;
+          <span class="dots" aria-hidden="true">${inPlay.map((c) => `<i class="${c.defends ? 'd' : ''}" style="background:${c.party.color}"></i>`).join('')}</span></button></li>`;
       })
       .join('')}</ul>`;
 }

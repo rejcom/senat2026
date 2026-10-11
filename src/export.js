@@ -46,6 +46,7 @@ svg { --map-empty:#dfe3e8; --map-off:#eceae8; }
 .obvod--off { fill:var(--map-off); }
 .obvod.is-elected { stroke:#d4a017; stroke-width:2; }
 .obvod-no { font:700 11px 'Segoe UI',system-ui,Arial,sans-serif; fill:${INK}; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round; }
+.obvod-win { font:700 9.5px 'Segoe UI',system-ui,Arial,sans-serif; fill:${INK}; paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round; }
 .marks--compact .dots { display:none; }
 .dot { stroke:#fff; stroke-width:1; }
 .dot--defends { stroke:#111; stroke-width:2; }

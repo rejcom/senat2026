@@ -19,7 +19,15 @@ const dec = (x) => {
   const r = Math.round(x * 10) / 10;
   return r.toLocaleString('cs-CZ', { minimumFractionDigits: Number.isInteger(r) ? 0 : 1, maximumFractionDigits: 1 });
 };
-const plural = (n, one, few, many) => (n === 1 ? one : n >= 2 && n <= 4 ? few : many);
+// české počítané pády: 1, 21, 31… (jednotné číslo), 2–4, 22–24… (množné číslo), jinak 2. pád množného (11–14 jako „many“)
+const plural = (n, one, few, many) => {
+  const t = n % 100;
+  const u = n % 10;
+  if (n === 1) return one;
+  if (t >= 11 && t <= 14) return many;
+  if (u === 1) return one;
+  return u >= 2 && u <= 4 ? few : many;
+};
 
 // Číslovky 0–100 slovy pro čtení nahlas. gender: 'm' | 'f' | 'n', ins = 7. pád (jinak 1. pád).
 const NUM = {
@@ -248,6 +256,47 @@ export function commentClose(o, res) {
   const [a, b] = top(res, 2);
   const tpl = `Těsný souboj: ${OBV(o.id, o.name)}. První je ${who(a.c)} s ${PI(pctOf(a, res))}, druhý ${who(b.c)} s ${PI(pctOf(b, res))}. Rozdíl je jen ${PP(pctOf(a, res) - pctOf(b, res))}.`;
   return out('close', o, tpl, { leaderUid: a.c.uid });
+}
+
+/**
+ * Predikce 2. kola pro jeden obvod. d = { xa, xb (výsledkové řádky kandidátů), share (podíl xa, 0–1), lo, hi, pWin (xa), countedPct (0–1) }.
+ * Text jen skládá čísla z modelu (src/predict.js), nic nedomýšlí; slovní jistota je podle pravděpodobnosti.
+ */
+export function commentPrediction(o, d, { disclaimer = false } = {}) {
+  const a = d.xa.c;
+  const b = d.xb.c;
+  const first = d.pWin >= 0.5;
+  const win = first ? a : b;
+  const prob = Math.min(99, (first ? d.pWin : 1 - d.pWin) * 100);
+  const early = d.countedPct < 0.1;
+  const half = ((d.hi - d.lo) / 2) * 100;
+  let tpl = `Predikce: ${OBV(o.id, o.name)}. Po sečtení ${P(d.countedPct * 100)} okrsků odhadujeme, že ${nameOf(a)} získá ${P(d.share * 100)} hlasů a ${nameOf(b)} ${P((1 - d.share) * 100)}. `;
+  if (prob >= 99 && !early) tpl += `Výsledek vypadá jasně. Favoritem je ${who(win)}, pravděpodobnost zvolení ${P(prob)}. `;
+  else if (prob >= 80) tpl += `Rýsuje se favorit: ${who(win)}, pravděpodobnost zvolení ${P(prob)}. `;
+  else if (prob >= 65) tpl += `Mírný náskok má ${who(win)}, pravděpodobnost zvolení ${P(prob)}. `;
+  else if (Math.abs(d.share - 0.5) * 100 < 0.5) tpl += `Souboj je zatím úplně vyrovnaný. `;
+  else tpl += `Souboj zůstává otevřený, odhad se od poloviny hlasů liší jen o ${PP(Math.abs(d.share - 0.5) * 100)}. `;
+  if (half >= 1) tpl += `Odhad se ještě může posunout zhruba o ${PP(half)}. `;
+  if (disclaimer || early) tpl += `Jde o statistický odhad, ne o oficiální výsledek.`;
+  return out('predikce', o, tpl.trim());
+}
+
+/** Souhrn predikce: kolik obvodů a kdo je v nich favoritem. items = [{ win (kandidát), prob (0–1) }]. */
+export function commentPredictionOverall(items, totalObvodu) {
+  const by = new Map();
+  for (const it of items) {
+    const k = it.win.party.key;
+    const e = by.get(k) ?? { c: it.win, n: 0 };
+    e.n++;
+    by.set(k, e);
+  }
+  const list = [...by.values()]
+    .sort((x, y) => y.n - x.n)
+    .slice(0, 4)
+    .map((e) => `${partyOf(e.c)} ${e.n}`)
+    .join(', ');
+  const tpl = `Souhrn predikce: odhad už máme pro ${items.length} z ${totalObvodu} obvodů. Favoriti podle počtu obvodů: ${list}. Jde o statistický odhad, ne o oficiální výsledek.`;
+  return out('predikce_souhrn', null, tpl);
 }
 
 /** Souhrn celého večera. */

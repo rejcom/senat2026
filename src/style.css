@@ -289,3 +289,25 @@ button { font: inherit; color: inherit; }
 .ro-vs { color: var(--muted); margin: 0 4px; }
 .ro-foot { margin: 12px 0 0; font-size: 12.5px; }
 @media (max-width: 700px) { .ro-list li { grid-template-columns: 1fr; gap: 2px; } }
+
+/* ---------- predikce 2. kola ---------- */
+.pr-summary { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin: 4px 0 10px; font-size: 14px; }
+.pr-fav { display: inline-flex; align-items: center; gap: 4px; }
+.pr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.pr-item { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 8px 18px; padding: 10px 0; border-top: 1px solid var(--line); }
+.pr-head { min-width: 0; }
+.pr-ob { margin-bottom: 4px; }
+.pr-vs { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; font-size: 13.5px; }
+.pr-bar { position: relative; height: 14px; background: var(--bg); border-radius: 3px; margin: 4px 0 6px; }
+.pr-band { position: absolute; top: 2px; bottom: 2px; opacity: 0.35; border-radius: 2px; }
+.pr-mid { position: absolute; left: 50%; top: -2px; bottom: -2px; width: 2px; background: var(--muted); opacity: 0.7; }
+.pr-mark { position: absolute; top: -1px; bottom: -1px; width: 4px; margin-left: -2px; border-radius: 2px; }
+.pr-nums { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-size: 13px; }
+.pr-verdict { margin-top: 4px; font-size: 13.5px; }
+.pr-verdict--sure { color: var(--good); }
+.pr-verdict--likely { color: var(--accent); }
+.pr-verdict--open { color: var(--warn); }
+@media (max-width: 760px) { .pr-item { grid-template-columns: 1fr; } }
+
+.pr-compact { list-style: none; margin: 4px 0 0; padding: 0; columns: 2 420px; column-gap: 24px; font-size: 13.5px; }
+.pr-compact li { break-inside: avoid; padding: 3px 0; }

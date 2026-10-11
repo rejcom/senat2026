@@ -10,6 +10,7 @@ import { senateChart, liveSeats } from './senate.js';
 import { createTable } from './table.js';
 import { createPoller, obvodResult } from './live.js';
 import { demoXml } from './demo.js';
+import { createPredictor, indexK1, K2_BASE, verdict, MIN_SHARE } from './predikce.js';
 
 const $ = (id) => document.getElementById(id);
 const time = (d) => d.toLocaleTimeString('cs-CZ');
@@ -97,15 +98,17 @@ function select(id, { zoom = true, scroll = false } = {}) {
 // ---------- vykreslování ----------
 
 function renderSubtitle() {
-  const start = new Date('2026-10-09T14:00:00+02:00');
-  const end = new Date('2026-10-10T14:00:00+02:00');
+  const at = (d, h = 14) => new Date(`2026-10-${d}T${h}:00:00+02:00`);
   const now = new Date();
-  let when = '';
-  if (now < start) {
-    const d = Math.ceil((start - now) / 864e5);
-    when = ` · do voleb zbývá ${d} ${d === 1 ? 'den' : d < 5 ? 'dny' : 'dní'}`;
-  } else if (now <= end) when = ' · volby právě probíhají';
-  $('subtitle').textContent = `1. kolo 9.–10. 10. 2026, případné 2. kolo 16.–17. 10. 2026 · ${data.obvody.length} z 81 obvodů${when}`;
+  const days = (to) => Math.ceil((to - now) / 864e5);
+  const plural = (n) => (n === 1 ? 'den' : n < 5 ? 'dny' : 'dní');
+  let when;
+  if (now < at(9)) when = `do 1. kola zbývá ${days(at(9))} ${plural(days(at(9)))}`;
+  else if (now <= at(10)) when = '1. kolo právě probíhá';
+  else if (now < at(16)) when = `1. kolo skončilo, 2. kolo 16.–17. 10. (zbývá ${days(at(16))} ${plural(days(at(16)))})`;
+  else if (now <= at(17)) when = '2. kolo právě probíhá';
+  else when = 'hlasování skončilo';
+  $('subtitle').textContent = `Senát 2026: 1. kolo 9.–10. 10., 2. kolo 16.–17. 10. · ${data.obvody.length} z 81 obvodů · ${when}`;
 }
 
 const names = (g) => {
@@ -206,6 +209,153 @@ function renderRunoff() {
     );
   }
   if (counting > 0) html += `<p class="muted ro-foot">Ještě se sčítá nebo čeká: ${counting} ${counting === 1 ? 'obvod' : counting < 5 ? 'obvody' : 'obvodů'}.</p>`;
+  el.hidden = false;
+  el.innerHTML = html;
+}
+
+// ---------- predikce 2. kola (src/predict.js, postup a zpětný test v doc/PREDIKCE.md) ----------
+
+const kolo2Demo = Number(new URLSearchParams(location.search).get('kolo2')) || 0; // demo: za kolik minut se „sečte“ 2. kolo
+const pred = { predictor: null, busy: false, error: null };
+
+/** Obvody, kde se (nebo se bude) hlasovat ve 2. kole: dvojice postupujících podle ČSÚ. */
+function runoffPairs() {
+  const out = [];
+  for (const o of data.obvody) {
+    const r = state.resMap.get(o.id);
+    if (!r || (r.elected && r.round === 1)) continue;
+    let pair = r.advancing.length >= 2 ? r.advancing : null;
+    if (!pair && kolo2Demo && r.hasVotes) pair = r.rows.slice(0, 2);
+    if (pair) out.push({ o, r, pair });
+  }
+  return out;
+}
+
+async function ensurePredictor() {
+  if (pred.predictor) return pred.predictor;
+  const k1 = await fetch(`${import.meta.env.BASE_URL}data/okrsky-k1.json`).then((r) => r.json());
+  const k1Map = indexK1(k1);
+  let fetchBatch;
+  if (kolo2Demo) {
+    const { createDemoK2 } = await import('./demo-k2.js');
+    const pairs = new Map(runoffPairs().map(({ o, pair }) => [o.id, [pair[0].c.no, pair[1].c.no]]));
+    fetchBatch = createDemoK2(k1Map, pairs, { minutes: kolo2Demo, seed: 11 }).fetchBatch;
+  } else {
+    fetchBatch = async (n) => {
+      const r = await fetch(`${K2_BASE}vysledky_okrsky_${String(n).padStart(5, '0')}.xml`);
+      return r.ok ? r.text() : null;
+    };
+  }
+  pred.predictor = createPredictor({ k1: k1Map, fetchBatch });
+  return pred.predictor;
+}
+
+async function updatePredictions() {
+  if (pred.busy) return;
+  const pairs = runoffPairs();
+  if (!pairs.length) {
+    $('predikce-card').hidden = true;
+    return;
+  }
+  pred.busy = true;
+  try {
+    const p = await ensurePredictor();
+    await p.refresh();
+    pred.error = null;
+  } catch (e) {
+    pred.error = e instanceof Error ? e.message : String(e);
+  } finally {
+    pred.busy = false;
+  }
+  renderPredikce(runoffPairs());
+}
+
+const pct0 = (x) => `${Math.round(x)} %`;
+
+function renderPredikce(pairs) {
+  const el = $('predikce-card');
+  const p = pred.predictor;
+  if (!pairs.length || !p) {
+    el.hidden = true;
+    return;
+  }
+  const items = pairs.map(({ o, r, pair }) => {
+    const [na, nb] = p.leaderOfFirstRound(o.id, pair[0].c.no, pair[1].c.no);
+    const xa = pair.find((x) => x.c.no === na);
+    const xb = pair.find((x) => x.c.no === nb);
+    const res = p.predict(o.id, na, nb);
+    const official = r.state === 'elected' && r.round === 2 ? r.elected : null;
+    return { o, xa, xb, res, official };
+  });
+  const closeness = (i) => (i.official ? 9 : i.res?.publish ? Math.abs(i.res.pWin - 0.5) : 5 + i.o.id / 1000);
+  items.sort((a, b) => closeness(a) - closeness(b));
+  const started = items.some((i) => i.res);
+  const published = items.filter((i) => i.res?.publish);
+
+  // souhrn: kdo je favoritem v kolika obvodech (jistě = pravděpodobnost aspoň 95 %)
+  const fav = new Map();
+  for (const i of published) {
+    const first = i.res.pWin >= 0.5;
+    const x = first ? i.xa : i.xb;
+    const prob = first ? i.res.pWin : 1 - i.res.pWin;
+    const e = fav.get(x.c.party.key) ?? { party: x.c.party, n: 0, sure: 0 };
+    e.n++;
+    if (prob >= 0.95 && i.res.countedPct >= 0.1) e.sure++;
+    fav.set(x.c.party.key, e);
+  }
+  const summary = [...fav.values()]
+    .sort((a, b) => b.n - a.n)
+    .map((e) => `<span class="pr-fav">${chip(e.party)} <b>${e.n}</b>${e.sure < e.n ? ` <span class="muted">(z toho ${e.sure} jistě)</span>` : ''}</span>`)
+    .join('');
+
+  const row = ({ o, xa, xb, res, official }) => {
+    const nm = (x) => `${chip(x.c.party)} <b>${esc(fullName(x.c, { titles: false }))}</b>${x.c.defends ? ' <span class="badge badge--def">obhajuje</span>' : ''}`;
+    const head = `<div class="pr-head"><div class="pr-ob"><b>${o.id}</b> ${esc(o.name)}</div><div class="pr-vs">${nm(xa)}<span class="ro-vs">×</span>${nm(xb)}</div></div>`;
+    let body;
+    if (official) {
+      body = `<span class="badge badge--won">zvolen(a)</span> ${esc(fullName(official.c, { titles: false }))} <span class="muted">potvrzeno ČSÚ</span>`;
+    } else if (!res) {
+      body = '<span class="muted">2. kolo zatím nezačalo, nebo ještě není sečten žádný okrsek</span>';
+    } else if (!res.publish) {
+      body = `<span class="muted">Sečteno ${res.counted} z ${res.total} okrsků (${pct0(res.countedPct * 100)}). Predikce se vydá od ${pct0(MIN_SHARE * 100)} sečtených okrsků.</span>`;
+    } else {
+      const v = verdict(res, fullName(xa.c, { titles: false }), fullName(xb.c, { titles: false }));
+      const lo = res.lo * 100;
+      const hi = res.hi * 100;
+      const w = 100 - lo - (100 - hi);
+      body = `<div class="pr-bar" role="img" aria-label="Odhad podílu ${esc(xa.c.lastName)}: ${fmt1(res.share * 100)} % (90 % interval ${fmt1(lo)} až ${fmt1(hi)} %)">
+          <i class="pr-band" style="left:${lo}%;width:${w}%;background:${xa.c.party.color}"></i><i class="pr-mid"></i><i class="pr-mark" style="left:${res.share * 100}%;background:${xa.c.party.color}"></i></div>
+        <div class="pr-nums"><span><b>${esc(xa.c.lastName)}</b> ${fmt1(res.share * 100)} % · <b>${esc(xb.c.lastName)}</b> ${fmt1(100 - res.share * 100)} %</span>
+        <span class="muted">90 % interval ${fmt1(lo)}–${fmt1(hi)} % · sečteno ${pct0(res.countedPct * 100)} okrsků, zatím ${fmt1(res.currentShare * 100)} % pro ${esc(xa.c.lastName)}</span></div>
+        ${res.countedPct >= 0.999
+          ? `<div class="pr-verdict pr-verdict--sure"><b>${esc(res.share >= 0.5 ? fullName(xa.c, { titles: false }) : fullName(xb.c, { titles: false }))}</b> vede po sečtení všech okrsků, čeká se na potvrzení ČSÚ</div>`
+          : `<div class="pr-verdict pr-verdict--${v.sure ? 'sure' : v.prob >= 0.8 ? 'likely' : 'open'}"><b>${esc(v.winner)}</b>: ${pct0(Math.min(99, v.prob * 100))} šance na zvolení, ${v.level}</div>`}`;
+    }
+    return `<li class="pr-item">${head}<div class="pr-body">${body}</div></li>`;
+  };
+
+  // Než 2. kolo začne, je nahoře skutečná situace (zvolení a postup) a predikce jen kompaktně pod ní; při sčítání 2. kola predikce nahoru.
+  const runoffEl = $('runoff-card');
+  if (started && runoffEl.previousElementSibling !== el) runoffEl.before(el);
+  else if (!started && runoffEl.nextElementSibling !== el) runoffEl.after(el);
+  if (!started) {
+    const compact = items
+      .map(({ o, xa, xb }) => `<li><b>${o.id}</b> ${esc(o.name)}: ${esc(fullName(xa.c, { titles: false }))} (${esc(xa.c.party.short)}) × ${esc(fullName(xb.c, { titles: false }))} (${esc(xb.c.party.short)})</li>`)
+      .join('');
+    el.hidden = false;
+    el.innerHTML = `<div class="card-head"><h2 id="predikce-h">Predikce 2. kola (statistický odhad)</h2></div>
+      <p class="muted ro-note">Predikce se spustí během sčítání 2. kola (16.–17. 10.), jakmile bude v obvodu sečteno ${pct0(MIN_SHARE * 100)} okrsků. Pak se bude průběžně zpřesňovat a přesune se nahoru. Zatím víme, kdo postupuje (${items.length} obvodů):</p>
+      <ul class="pr-compact">${compact}</ul>`;
+    return;
+  }
+
+  let html = `<div class="card-head"><h2 id="predikce-h">Predikce 2. kola (statistický odhad)</h2></div>`;
+  html += started
+    ? `<p class="muted ro-note">Odhad konečného výsledku z už sečtených okrsků: model navíc zná výsledky 1. kola v okrscích, které se teprve sečtou, a tím opravuje zkreslení (nejdřív se sčítají malé obce). Zpětně otestováno na 97 druhých kolech z let 2018–2024. Není to oficiální výsledek, závazné je vyhlášení ČSÚ.</p>`
+    : `<p class="muted ro-note">Predikce se spustí během sčítání 2. kola (16.–17. 10.), jakmile bude v obvodu sečteno ${pct0(MIN_SHARE * 100)} okrsků. Postupující zatím: ${items.length} obvodů.</p>`;
+  if (published.length) html += `<div class="pr-summary"><span class="muted">Favoriti v ${published.length} z ${items.length} obvodů:</span> ${summary}</div>`;
+  html += `<ul class="pr-list">${items.map(row).join('')}</ul>`;
+  if (pred.error) html += `<p class="muted ro-foot">Dávky okrskových výsledků se nepodařilo načíst (${esc(pred.error)}), zobrazuji poslední známý stav.</p>`;
   el.hidden = false;
   el.innerHTML = html;
 }
@@ -410,6 +560,7 @@ function renderAll() {
   renderSide();
   renderSenate();
   table.update(tableState());
+  updatePredictions();
 }
 
 const fetchText = demoLevel

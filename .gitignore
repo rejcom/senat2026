@@ -6,3 +6,5 @@ dist
 # vysílací kontejner: výstupy zkoušek a lokální nastavení
 deploy/stream/out/
 deploy/stream/.env
+
+.cache/

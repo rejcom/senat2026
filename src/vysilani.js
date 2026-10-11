@@ -7,6 +7,8 @@ import { RESULTS_URL, REFRESH_MS } from './config.js';
 import { createPoller, obvodResult } from './live.js';
 import { demoXml, demoNightXml } from './demo.js';
 import { createDirector } from './director.js';
+import { createPredictor, indexK1, K2_BASE } from './predikce.js';
+import { commentPrediction, commentPredictionOverall } from './commentary.js';
 import { setSpeechNumberWords } from './commentary.js';
 import { createSpeaker, createServerSpeaker } from './speech.js';
 import { senateSvg, liveSeats } from './senate.js';
@@ -23,6 +25,7 @@ const demoLevel = /^[123]$/.test(demoParam ?? '') ? Number(demoParam) : 0;
 const isDemo = isNight || demoLevel > 0;
 const nightMin = Number(params.get('min')) || 10;
 const rate = Number(params.get('rychlost')) || 1;
+const kolo2Demo = Number(params.get('kolo2')) || 0; // demo: za kolik minut se „sečte“ 2. kolo (s ?demo=2)
 if (params.get('bezovladani')) document.body.classList.add('clean');
 
 const data = await loadData();
@@ -112,6 +115,7 @@ const poller = createPoller({
     director.ingest(state.resMap);
     renderHeader();
     renderSeats();
+    updatePredictions();
   },
   onStatus(patch) {
     Object.assign(state.status, patch);
@@ -261,7 +265,115 @@ function renderCard(o, res) {
       <div class="state ${stateTxt[1]}">${stateTxt[0]}</div></div>${prog}${body}`;
 }
 
+// ---------- predikce 2. kola ----------
+
+const pred = { predictor: null, busy: false, items: [], lastShown: new Map(), slotNo: 0, overallNo: 0 };
+
+function runoffPairs() {
+  const out = [];
+  for (const o of data.obvody) {
+    const r = state.resMap.get(o.id);
+    if (!r || (r.elected && r.round === 1)) continue;
+    let pair = r.advancing.length >= 2 ? r.advancing : null;
+    if (!pair && kolo2Demo && r.hasVotes) pair = r.rows.slice(0, 2);
+    if (pair) out.push({ o, r, pair });
+  }
+  return out;
+}
+
+async function ensurePredictor() {
+  if (pred.predictor) return pred.predictor;
+  const k1Map = indexK1(await fetch(`${import.meta.env.BASE_URL}data/okrsky-k1.json`).then((r) => r.json()));
+  let fetchBatch;
+  if (kolo2Demo) {
+    const { createDemoK2 } = await import('./demo-k2.js');
+    const pairs = new Map(runoffPairs().map(({ o, pair }) => [o.id, [pair[0].c.no, pair[1].c.no]]));
+    fetchBatch = createDemoK2(k1Map, pairs, { minutes: kolo2Demo, seed: 11 }).fetchBatch;
+  } else {
+    fetchBatch = async (n) => {
+      const r = await fetch(`${K2_BASE}vysledky_okrsky_${String(n).padStart(5, '0')}.xml`);
+      return r.ok ? r.text() : null;
+    };
+  }
+  pred.predictor = createPredictor({ k1: k1Map, fetchBatch });
+  return pred.predictor;
+}
+
+async function updatePredictions() {
+  if (pred.busy) return;
+  const pairs = runoffPairs();
+  if (!pairs.length) {
+    pred.items = [];
+    return;
+  }
+  pred.busy = true;
+  try {
+    const p = await ensurePredictor();
+    await p.refresh();
+    pred.items = pairs
+      .map(({ o, r, pair }) => {
+        const [na, nb] = p.leaderOfFirstRound(o.id, pair[0].c.no, pair[1].c.no);
+        const xa = pair.find((x) => x.c.no === na);
+        const xb = pair.find((x) => x.c.no === nb);
+        const res = r.state === 'elected' ? null : p.predict(o.id, na, nb);
+        return res?.publish ? { o, xa, xb, ...res } : null;
+      })
+      .filter(Boolean);
+  } catch {
+    /* predikce je doplněk, vysílání běží dál bez ní */
+  } finally {
+    pred.busy = false;
+  }
+}
+
+/** Každé třetí hlášení je predikce (když nějaká je), každá šestá z nich souhrn. Vybírá se obvod, který se nejdéle neukázal; těsné mají přednost. */
+function nextPredictionSlot() {
+  if (!pred.items.length) return null;
+  pred.slotNo++;
+  if (pred.slotNo % 3 !== 0) return null;
+  pred.overallNo++;
+  if (pred.overallNo % 6 === 0 && pred.items.length >= 3) {
+    const items = pred.items.map((d) => ({ win: d.pWin >= 0.5 ? d.xa.c : d.xb.c }));
+    return { ...commentPredictionOverall(items, runoffPairs().length), minMs: 16000 };
+  }
+  const t = Date.now();
+  const score = (d) => t - (pred.lastShown.get(d.o.id) ?? 0) + (1 - Math.abs(d.pWin - 0.5) * 2) * 60_000;
+  const d = [...pred.items].sort((x, y) => score(y) - score(x))[0];
+  pred.lastShown.set(d.o.id, t);
+  return { ...commentPrediction(d.o, d, { disclaimer: pred.overallNo % 4 === 0 }), pred: d, minMs: 15000 };
+}
+
+function renderPredCard(d) {
+  const row = (x, share, i) => {
+    const c = x.c;
+    return `<li class="row${c.defends ? ' is-def' : ''}" style="--c:${c.party.color};--ink2:${inkFor(c.party.color)}">
+      <div class="rk">${i + 1}</div>
+      <div><div class="nm">${esc(fullName(c, { titles: false }))}${c.defends ? '<span class="bd">OBHAJUJE</span>' : ''}</div><div class="pt"><i></i>${esc(partyLabel(c))} · ${c.age} let</div></div>
+      <div class="num"><b>${fmt1(share * 100)} %</b><span>odhad</span></div>
+      <div class="bar"><i style="width:${Math.min(100, share * 100)}%"></i></div>
+    </li>`;
+  };
+  const first = d.pWin >= 0.5;
+  const prob = Math.min(99, (first ? d.pWin : 1 - d.pWin) * 100);
+  const fav = first ? d.xa : d.xb;
+  const rows = [
+    { x: d.xa, share: d.share },
+    { x: d.xb, share: 1 - d.share },
+  ]
+    .sort((p, q) => q.share - p.share)
+    .map((r, i) => row(r.x, r.share, i));
+  $('card').className = 'card';
+  $('card').innerHTML = `<div class="oh"><div class="oh-no">${d.o.id}</div>
+    <div class="oh-name"><h2>${esc(d.o.name)}</h2><p>Predikce 2. kola · statistický odhad</p></div>
+    <div class="state cnt">PREDIKCE</div></div>
+    <div class="prog"><div class="prog-bar"><i style="width:${d.countedPct * 100}%"></i></div><div class="prog-txt">Sečteno ${fmtInt(d.counted)} z ${fmtInt(d.total)} okrsků (${fmt1(d.countedPct * 100)} %) · 90 % interval pro ${esc(d.xa.c.lastName)}: ${fmt1(d.lo * 100)}–${fmt1(d.hi * 100)} %</div></div>
+    <ol class="top">${rows.join('')}</ol>
+    <div class="more">Pravděpodobnost zvolení: ${esc(fullName(fav.c, { titles: false }))} ${Math.round(prob)} %</div>`;
+}
+
 const KIND = {
+  predikce: 'Predikce 2. kola',
+  predikce_souhrn: 'Souhrn predikce',
   intro: 'Vítejte',
   pre: 'Kandidáti',
   waiting: 'Čekáme na data',
@@ -314,7 +426,12 @@ function show(slot) {
   state.current = slot;
   const o = slot.obvodId ? data.obvodById.get(slot.obvodId) : null;
   const res = o ? state.resMap.get(o.id) : null;
-  if (['overall', 'final', 'recap', 'outro'].includes(slot.kind) && [...state.resMap.values()].some((r) => r.state === 'elected' || r.state === 'runoff')) {
+  if (slot.kind === 'predikce' && slot.pred) {
+    renderPredCard(slot.pred);
+    mini.show(slot.pred.o.id, slot.pred.xa.c.party.color);
+  } else if (slot.kind === 'predikce_souhrn') {
+    mini.show(null, null);
+  } else if (['overall', 'final', 'recap', 'outro'].includes(slot.kind) && [...state.resMap.values()].some((r) => r.state === 'elected' || r.state === 'runoff')) {
     renderBoard(slot.ids ?? []);
     mini.show(null, null);
   } else if (o) {
@@ -358,7 +475,7 @@ async function loop() {
       await sleep(300);
       continue;
     }
-    const slot = director.next(state.resMap);
+    const slot = nextPredictionSlot() ?? director.next(state.resMap);
     show(slot);
     const skip = new Promise((r) => (skipNow = r));
     const work = Promise.all([sleep(slot.minMs ?? 12000), state.voiceOn ? speaker.speak(slot.speech) : sleep(readMs(slot.text))]);

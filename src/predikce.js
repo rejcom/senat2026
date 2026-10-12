@@ -118,8 +118,32 @@ export function createPredictor({ k1, fetchBatch, prior = DEFAULT_PRIOR }) {
     return a >= b ? [c1, c2] : [c2, c1];
   }
 
-  return { refresh, predict, leaderOfFirstRound, get batches() { return next - 1; }, get precincts() { return k2.size; } };
+  /** Výsledek 1. kola dvojice v obvodu z okrskových dat: { a, b (kandidáti, a = vedoucí), aPct, bPct, lead (p. b.), prob } */
+  function firstRound(obvod, c1, c2) {
+    let a = 0;
+    let b = 0;
+    let n = 0;
+    const [A, B] = leaderOfFirstRound(obvod, c1, c2);
+    for (const q of byObvod.get(obvod) ?? []) {
+      a += q.v1[A] ?? 0;
+      b += q.v1[B] ?? 0;
+      n += q.N1;
+    }
+    const aPct = (a / n) * 100;
+    const bPct = (b / n) * 100;
+    return { a: A, b: B, aPct, bPct, lead: aPct - bPct, prob: preVoteProb(aPct - bPct) };
+  }
+
+  return { refresh, predict, leaderOfFirstRound, firstRound, get batches() { return next - 1; }, get precincts() { return k2.size; } };
 }
+
+/**
+ * Předběžná pravděpodobnost, že vedoucí z 1. kola vyhraje 2. kolo, jen z jeho náskoku (procentní body z platných hlasů 1. kola).
+ * Logistická regrese na 97 obvodech z druhých kol 2018–2024: logit = −0,11 + 0,225 × náskok.
+ * Zpětně (leave-one-year-out) Brier 0,154 (základna „vedoucí vyhraje“ 0,176), kalibrace: odhad 52 % → skutečně 59 %, 70 → 72, 94 → 90.
+ */
+// ořezáno na 3–97 %: v nejvyšším pásmu zpětného testu byl odhad 94 % a skutečnost 90 %, takže vyšší jistotu před hlasováním netvrdíme
+export const preVoteProb = (leadPp) => Math.min(0.97, Math.max(0.03, 1 / (1 + Math.exp(-(-0.11 + 0.225 * leadPp)))));
 
 /** Slovní zařazení jistoty predikce pro text na webu (bez vymýšlení: jen z čísel modelu). */
 export function verdict(p, nameA, nameB) {

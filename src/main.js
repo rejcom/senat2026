@@ -284,10 +284,11 @@ function renderPredikce(pairs) {
     const xa = pair.find((x) => x.c.no === na);
     const xb = pair.find((x) => x.c.no === nb);
     const res = p.predict(o.id, na, nb);
+    const fr = p.firstRound(o.id, pair[0].c.no, pair[1].c.no);
     const official = r.state === 'elected' && r.round === 2 ? r.elected : null;
-    return { o, xa, xb, res, official };
+    return { o, xa, xb, res, official, fr };
   });
-  const closeness = (i) => (i.official ? 9 : i.res?.publish ? Math.abs(i.res.pWin - 0.5) : 5 + i.o.id / 1000);
+  const closeness = (i) => (i.official ? 9 : i.res?.publish ? Math.abs(i.res.pWin - 0.5) : Math.abs(i.fr.prob - 0.5) + 1);
   items.sort((a, b) => closeness(a) - closeness(b));
   const started = items.some((i) => i.res);
   const published = items.filter((i) => i.res?.publish);
@@ -339,13 +340,36 @@ function renderPredikce(pairs) {
   if (started && runoffEl.previousElementSibling !== el) runoffEl.before(el);
   else if (!started && runoffEl.nextElementSibling !== el) runoffEl.after(el);
   if (!started) {
-    const compact = items
-      .map(({ o, xa, xb }) => `<li><b>${o.id}</b> ${esc(o.name)}: ${esc(fullName(xa.c, { titles: false }))} (${esc(xa.c.party.short)}) × ${esc(fullName(xb.c, { titles: false }))} (${esc(xb.c.party.short)})</li>`)
+    const rowsHtml = items
+      .map(({ o, xa, xb, fr }) => {
+        const pa = fr.prob;
+        const lead = pa >= 0.5 ? xa : xb;
+        const pl = pa >= 0.5 ? pa : 1 - pa;
+        const nm = (x) => `${chip(x.c.party)} <b>${esc(fullName(x.c, { titles: false }))}</b>${x.c.defends ? ' <span class="badge badge--def">obhajuje</span>' : ''}`;
+        return `<li class="pr-item"><div class="pr-head"><div class="pr-ob"><b>${o.id}</b> ${esc(o.name)}</div><div class="pr-vs">${nm(xa)}<span class="ro-vs">×</span>${nm(xb)}</div></div>
+          <div class="pr-body"><div class="pr-bar" role="img" aria-label="Předběžná šance: ${esc(xa.c.lastName)} ${pct0(pa * 100)}"><i class="pr-fill" style="width:${pa * 100}%;background:${xa.c.party.color}"></i><i class="pr-mid"></i></div>
+          <div class="pr-nums"><span><b>${esc(xa.c.lastName)}</b> ${fmt1(fr.aPct)} % × <b>${esc(xb.c.lastName)}</b> ${fmt1(fr.bPct)} % v 1. kole</span><span class="muted">náskok ${fmt1(fr.lead)} p. b.</span></div>
+          <div class="pr-verdict pr-verdict--${pl >= 0.8 ? 'likely' : 'open'}"><b>${esc(fullName(lead.c, { titles: false }))}</b>: předběžně ${pct0(Math.min(99, pl * 100))} šance na zvolení</div></div></li>`;
+      })
+      .join('');
+    // očekávaný počet obvodů podle stran = součet pravděpodobností výhry
+    const exp = new Map();
+    for (const { xa, xb, fr } of items) {
+      for (const [x, pr] of [[xa, fr.prob], [xb, 1 - fr.prob]]) {
+        const e = exp.get(x.c.party.key) ?? { party: x.c.party, v: 0 };
+        e.v += pr;
+        exp.set(x.c.party.key, e);
+      }
+    }
+    const expHtml = [...exp.values()]
+      .sort((u, v) => v.v - u.v)
+      .map((e) => `<span class="pr-fav">${chip(e.party)} <b>${fmt1(e.v)}</b></span>`)
       .join('');
     el.hidden = false;
-    el.innerHTML = `<div class="card-head"><h2 id="predikce-h">Predikce 2. kola (statistický odhad)</h2></div>
-      <p class="muted ro-note">Predikce se spustí během sčítání 2. kola (16.–17. 10.), jakmile bude v obvodu sečteno ${pct0(MIN_SHARE * 100)} okrsků. Pak se bude průběžně zpřesňovat a přesune se nahoru. Zatím víme, kdo postupuje (${items.length} obvodů):</p>
-      <ul class="pr-compact">${compact}</ul>`;
+    el.innerHTML = `<div class="card-head"><h2 id="predikce-h">Předběžný odhad 2. kola (před hlasováním)</h2></div>
+      <p class="muted ro-note">Sčítání 2. kola ještě nezačalo. Odhad vychází jen z výsledku 1. kola a ze zkušenosti z minulých druhých kol (2018–2024, zpětně otestováno): vedoucí z 1. kola vyhrál zhruba ve třech ze čtyř obvodů a čím větší náskok, tím jistěji. Je to hrubý odhad, od ${pct0(MIN_SHARE * 100)} sečtených okrsků ho nahradí průběžná predikce z výsledků 2. kola.</p>
+      <div class="pr-summary"><span class="muted">Očekávaný počet obvodů (součet pravděpodobností) z ${items.length}:</span> ${expHtml}</div>
+      <ul class="pr-list">${rowsHtml}</ul>`;
     return;
   }
 

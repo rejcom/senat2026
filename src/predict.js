@@ -141,12 +141,13 @@ export function predictObvod(prec, counted, A, B, prior = DEFAULT_PRIOR, seed = 
   const C = []; // indexy sečtených okrsků
   const U = []; // nesečtené
   prec.forEach((p, i) => (counted.has(p.id) ? C.push(i) : U.push(i)));
-  if (!C.length) return null;
+  // allowEmpty: předběžný odhad před 2. kolem bez jediného sečteného okrsku (jen apriorní zkušenost + výsledky 1. kola)
+  if (!C.length && !prior.allowEmpty) return null;
 
   const sumA = C.reduce((s, i) => s + counted.get(prec[i].id).A2, 0);
   const sumB = C.reduce((s, i) => s + counted.get(prec[i].id).B2, 0);
   const countedVotes = sumA + sumB;
-  if (countedVotes === 0) return null;
+  if (countedVotes === 0 && !prior.allowEmpty) return null;
 
   // ---- 1) logistická regrese podílu A (IRLS s apriorem) ----
   const y = C.map((i) => counted.get(prec[i].id).A2);
@@ -292,7 +293,7 @@ export function predictObvod(prec, counted, A, B, prior = DEFAULT_PRIOR, seed = 
     countedVotesPct: countedVotes / totalVotes,
     counted: C.length,
     total: prec.length,
-    currentShare: sumA / countedVotes,
+    currentShare: countedVotes ? sumA / countedVotes : null,
     theta,
     phi,
     delta: dHat,

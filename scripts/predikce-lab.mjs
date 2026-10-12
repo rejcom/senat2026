@@ -260,6 +260,102 @@ const fmt = (a, k) => {
   }
 };
 
+/** Předběžný odhad PŘED 2. kolem (žádný sečtený okrsek): jen zkušenost z minulých voleb + výsledky 1. kola po okrscích. */
+async function forecastEval(data) {
+  const years = [...new Set(data.map((d) => d.year))];
+  const priors = {};
+  for (const y of years) priors[y] = fitPrior(data.filter((d) => d.year !== y), BASE_FEATS, { draws: 600 });
+  const configs = [
+    { name: 'bez navíc (1,0 / 0)', covInflate: 1, sharedSd: 0 },
+    { name: 'výchozí (1,25 / 0,06)', covInflate: 1.25, sharedSd: 0.06 },
+    { name: 'širší (1,25 / 0,12)', covInflate: 1.25, sharedSd: 0.12 },
+    { name: 'široké (1,5 / 0,15)', covInflate: 1.5, sharedSd: 0.15 },
+  ];
+  // základna: „vedoucí z 1. kola vyhraje“ s historickou četností (leave-one-year-out)
+  const winLead = (o) => (truth(o) > 0.5 ? 1 : 0);
+  console.log('Předběžný odhad před 2. kolem, ' + data.length + ' obvodů, leave-one-year-out');
+  const base = { n: 0, brier: 0, ll: 0, right: 0 };
+  for (const o of data) {
+    const train = data.filter((d) => d.year !== o.year);
+    const rate = train.reduce((s, d) => s + winLead(d), 0) / train.length;
+    const w = winLead(o);
+    base.n++;
+    base.brier += (rate - w) ** 2;
+    base.ll += -Math.log(Math.max(1e-9, w ? rate : 1 - rate));
+    base.right += (rate > 0.5 ? 1 : 0) === w ? 1 : 0;
+  }
+  console.log('základna „vedoucí z 1. kola vyhraje s historickou četností“: Brier ' + (base.brier / base.n).toFixed(3) + ', log-ztráta ' + (base.ll / base.n).toFixed(3) + ', trefa ' + Math.round((base.right / base.n) * 100) + ' %');
+  // alternativa: logistická regrese výhry vedoucího z 1. kola jen na jeho náskoku (procentní body) – jednoduché a průhledné
+  const lead1 = (o) => {
+    let a = 0;
+    let b = 0;
+    let n = 0;
+    for (const p of o.prec) {
+      a += p.v1[o.A] ?? 0;
+      b += p.v1[o.B] ?? 0;
+      n += p.N1;
+    }
+    return ((a - b) / n) * 100;
+  };
+  const fitLogit = (rows) => {
+    let b0 = 0;
+    let b1 = 0;
+    for (let it = 0; it < 60; it++) {
+      let g0 = 0, g1 = 0, h00 = 0, h01 = 0, h11 = 0;
+      for (const r of rows) {
+        const p = 1 / (1 + Math.exp(-(b0 + b1 * r.x)));
+        const w = p * (1 - p) + 1e-9;
+        g0 += r.y - p; g1 += (r.y - p) * r.x;
+        h00 += w; h01 += w * r.x; h11 += w * r.x * r.x;
+      }
+      g0 -= 0.01 * b0; g1 -= 0.01 * b1; h00 += 0.01; h11 += 0.01;
+      const det = h00 * h11 - h01 * h01;
+      b0 += (h11 * g0 - h01 * g1) / det;
+      b1 += (-h01 * g0 + h00 * g1) / det;
+    }
+    return [b0, b1];
+  };
+  const alt = { n: 0, brier: 0, ll: 0, right: 0 };
+  const altBins = Array.from({ length: 5 }, () => ({ n: 0, p: 0, w: 0 }));
+  for (const o of data) {
+    const train = data.filter((d) => d.year !== o.year).map((d) => ({ x: lead1(d), y: winLead(d) }));
+    const [b0, b1] = fitLogit(train);
+    const p = Math.min(0.999, Math.max(0.001, 1 / (1 + Math.exp(-(b0 + b1 * lead1(o))))));
+    const w = winLead(o);
+    const qb = Math.min(4, Math.floor(p * 5));
+    altBins[qb].n++; altBins[qb].p += p; altBins[qb].w += w;
+    alt.n++; alt.brier += (p - w) ** 2; alt.ll += -Math.log(w ? p : 1 - p); alt.right += (p > 0.5 ? 1 : 0) === w ? 1 : 0;
+  }
+  console.log('  kalibrace (odhad → skutečná četnost výhry vedoucího): ' + altBins.map((b, i) => (b.n ? '[' + i * 20 + '–' + (i + 1) * 20 + ' %] ' + Math.round((b.p / b.n) * 100) + ' → ' + Math.round((b.w / b.n) * 100) + ' % (n=' + b.n + ')' : '[' + i * 20 + '–' + (i + 1) * 20 + ' %] –')).join(' | '));
+  const [c0, c1] = fitLogit(data.map((d) => ({ x: lead1(d), y: winLead(d) })));
+  console.log('alternativa „jen náskok v 1. kole“ (logistická regrese): Brier ' + (alt.brier / alt.n).toFixed(3) + ', log-ztráta ' + (alt.ll / alt.n).toFixed(3) + ', trefa ' + Math.round((alt.right / alt.n) * 100) + ' %  [všechna data: logit = ' + c0.toFixed(2) + ' + ' + c1.toFixed(3) + ' × náskok(p. b.)]');
+  for (const x of [1, 3, 5, 10, 15, 20, 30]) console.log('   náskok ' + x + ' p. b. → vedoucí vyhraje s pravděpodobností ' + Math.round(100 / (1 + Math.exp(-(c0 + c1 * x)))) + ' %');
+  for (const cfg of configs) {
+    const acc = { n: 0, se: 0, cover: 0, width: 0, brier: 0, ll: 0, right: 0 };
+    const bins = Array.from({ length: 5 }, () => ({ n: 0, p: 0, w: 0 }));
+    data.forEach((o, di) => {
+      const prior = { ...priors[o.year], covInflate: cfg.covInflate, sharedSd: cfg.sharedSd, allowEmpty: true };
+      const r = predictObvod(o.prec, new Map(), o.A, o.B, prior, 11 + di);
+      const T = truth(o);
+      const w = T > 0.5 ? 1 : 0;
+      const p = Math.min(0.999, Math.max(0.001, r.pWin));
+      acc.n++;
+      acc.se += ((r.share - T) * 100) ** 2;
+      acc.cover += T >= r.lo && T <= r.hi ? 1 : 0;
+      acc.width += (r.hi - r.lo) * 100;
+      acc.brier += (p - w) ** 2;
+      acc.ll += -Math.log(w ? p : 1 - p);
+      acc.right += (p > 0.5 ? 1 : 0) === w ? 1 : 0;
+      const q = Math.min(4, Math.floor(p * 5));
+      bins[q].n++;
+      bins[q].p += p;
+      bins[q].w += w;
+    });
+    console.log('\n' + cfg.name + ': RMSE' + Math.sqrt(acc.se / acc.n).toFixed(2) + ' p. b., pokrytí 90% intervalu ' + Math.round((acc.cover / acc.n) * 100) + ' %, šířka ' + (acc.width / acc.n).toFixed(1) + ' p. b., Brier ' + (acc.brier / acc.n).toFixed(3) + ', log-ztráta ' + (acc.ll / acc.n).toFixed(3) + ', trefa vítěze ' + Math.round((acc.right / acc.n) * 100) + ' %');
+    console.log('  kalibrace (odhad pravděpodobnosti výhry A → skutečná četnost): ' + bins.map((b, i) => (b.n ? '[' + i * 20 + '–' + (i + 1) * 20 + ' %] ' + Math.round((b.p / b.n) * 100) + ' → ' + Math.round((b.w / b.n) * 100) + ' % (n=' + b.n + ')' : '[' + i * 20 + '–' + (i + 1) * 20 + ' %] –')).join(' | '));
+  }
+}
+
 async function main() {
   const data = [];
   for (const y of Object.keys(SOURCES)) data.push(...(await loadElection(+y)));
@@ -268,6 +364,10 @@ async function main() {
     const p = fitPrior(data, BASE_FEATS, {});
     const r = (x) => Math.round(x * 1000) / 1000;
     console.log(JSON.stringify({ theta0: p.theta0.map(r), thetaSd: p.thetaSd.map(r), phi0: r(p.phi0), delta0: r(p.delta0), deltaSd: r(p.deltaSd), gammaSd: r(p.gammaSd), sigmaV0: r(p.sigmaV0) }, null, 1));
+    return;
+  }
+  if (process.argv[2] === 'forecast') {
+    await forecastEval(data);
     return;
   }
   const names = (process.argv[3] ?? Object.keys(MODELS).join(',')).split(',');

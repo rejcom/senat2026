@@ -312,3 +312,4 @@ button { font: inherit; color: inherit; }
 
 .pr-compact { list-style: none; margin: 4px 0 0; padding: 0; columns: 2 420px; column-gap: 24px; font-size: 13.5px; }
 .pr-compact li { break-inside: avoid; padding: 3px 0; }
+.pr-fill { position: absolute; left: 0; top: 0; bottom: 0; opacity: 0.55; border-radius: 3px; }

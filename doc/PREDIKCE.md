@@ -51,6 +51,16 @@ Nastavení nejistoty (`sharedSd` 0,06, `covInflate` 1,25) se ladilo na mřížce
 
 **Zkouška modulu na skutečných dávkách ČSÚ z 2. kola 2024** (`scripts/test-replay-2024.mjs`): po čtvrtině dávek měl odhad pro všech 22 obvodů chybu 0,9 p. b., 21 jistých výroků ze 21 správně, po polovině 0,3 p. b.
 
+## Předběžný odhad před 2. kolem (bez sečtených okrsků)
+
+Dokud 2. kolo neběží, panel ukazuje u každého obvodu **šanci, že vedoucí z 1. kola vyhraje**, jen z jeho náskoku před druhým postupujícím (v procentních bodech z platných hlasů 1. kola):
+
+`logit(šance) = −0,11 + 0,225 × náskok`  (náskok 1 p. b. ≈ 53 %, 5 p. b. ≈ 73 %, 10 p. b. ≈ 89 %, 15 p. b. ≈ 96 %; zobrazuje se nejvýš 97 %)
+
+Koeficienty vychází ze 97 druhých kol 2018–2024. Zpětný test (leave-one-year-out): Brier 0,154, log-ztráta 0,459 (základna „vedoucí vyhraje s historickou četností“ 0,176 / 0,540; složitější okrskový model bez sečtených okrsků 0,164 / 0,495), trefa vítěze 75 % (vedoucí z 1. kola vyhrál celkem v 78 % obvodů). Kalibrace: odhad 52 % → skutečně 59 %, 70 % → 72 %, 94 % → 90 %.
+
+Je to hrubý odhad: před hlasováním je výsledek hodně nejistý (odhad podílu okrskovým modelem má chybu kolem 9,6 p. b.), proto se ukazuje jen pravděpodobnost výhry, ne podíl hlasů. Od 5 % sečtených okrsků ho nahradí průběžná predikce. Zpětný test: `node scripts/predikce-lab.mjs forecast`.
+
 ## Omezení a co není ověřené
 
 * Predikce předpokládá, že se 2. kolo chová podobně jako historická 2. kola. Neobvyklá situace (silná kampaň těsně před volbou, výrazná změna účasti) může být horší, než historie naznačuje, a model to pozná až z dat obvodu.

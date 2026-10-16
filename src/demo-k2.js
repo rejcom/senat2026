@@ -55,7 +55,7 @@ export function createDemoK2(k1Map, pairs, { chunk = 40, seed = 7, startedAt = D
     const rows = batches[n - 1]
       .map((it) => {
         const [obec, okrsek] = it.id.split('-');
-        return `<OKRSEK CIS_OBEC="${obec}" CIS_OKRSEK="${okrsek}" CIS_OBVOD="${it.obvod}" PORADI_ZPRAC="${it.order}" OPAKOVANE="0">
+        return `<OKRSEK CIS_OBEC="${obec}" CIS_OKRSEK="${okrsek}" CIS_OBVOD="${it.obvod}" PORADI_ZPRAC="${it.order}" DATUM_CAS_ZPRAC="${new Date(startedAt + (n / batches.length) * minutes * 60_000).toISOString().slice(0, 19)}" OPAKOVANE="0">
 <UCAST_OKRSEK PLATNE_HLASY="${it.V}"/>
 <HLASY_OKRSEK PORADOVE_CISLO="${it.A}" HLASY="${it.A2}"/>
 <HLASY_OKRSEK PORADOVE_CISLO="${it.B}" HLASY="${it.B2}"/>

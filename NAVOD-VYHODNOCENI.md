@@ -43,6 +43,21 @@ Grafy SVG jdou otevřít v prohlížeči. Do zpravodaje na LinkedIn je nahrajte 
 
 **Pojistka:** vyhodnocení funguje i bez záznamu. Když záznam v sobotu neběžel, skript si dávky stáhne od ČSÚ zpětně (ČSÚ je nechává na webu, ověřeno na 1. kole 2026 a na 2. kole 2024). Chybět bude jen časová osa.
 
+### Milníky přímo na webu (v reálném čase)
+
+U každého obvodu, kde je predikce vydána, je pod ní tabulka **„Jak se predikce vyvíjela“**: když se v obvodu překoná 5, 10, 25, 50 a 75 % sečtených okrsků, přibyde řádek s tím, co predikce tvrdila (s 90% intervalem) a jaká byla v tu chvíli skutečnost (dosavadní podíl z už sečtených hlasů). Po sečtení všech okrsků se doplní konečný výsledek a u každého řádku chyba predikce. Tabulka se objevuje sama s každou novou dávkou ČSÚ, nic se nespouští ručně.
+
+Aby záznam na webu zůstal natrvalo (i kdyby ČSÚ dávky stáhl), po úplném sečtení spusťte:
+
+```bash
+node scripts/predikce-milniky.mjs
+git add public/data/predikce-milniky-2kolo.json
+git commit -m "Záznam milníků predikce 2. kola"
+git push
+```
+
+Web pak u sečtených obvodů bere tabulku z tohoto souboru, u nedokončených dál přehrává dávky živě.
+
 ## 3. Co znamenají čísla (do zpravodaje)
 
 * **Prosté „dosavadní procento“:** to, co ukazuje většina webů, tedy podíl z dosud sečtených hlasů. Je zkreslené, protože se nejdřív sčítají malé obce a města až nakonec.

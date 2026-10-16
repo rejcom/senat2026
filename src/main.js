@@ -10,7 +10,7 @@ import { senateChart, liveSeats } from './senate.js';
 import { createTable } from './table.js';
 import { createPoller, obvodResult } from './live.js';
 import { demoXml } from './demo.js';
-import { createPredictor, indexK1, K2_BASE, verdict, MIN_SHARE } from './predikce.js';
+import { createPredictor, indexK1, K2_BASE, verdict, MIN_SHARE, MILESTONES } from './predikce.js';
 
 const $ = (id) => document.getElementById(id);
 const time = (d) => d.toLocaleTimeString('cs-CZ');
@@ -216,7 +216,13 @@ function renderRunoff() {
 // ---------- predikce 2. kola (src/predict.js, postup a zpětný test v doc/PREDIKCE.md) ----------
 
 const kolo2Demo = Number(new URLSearchParams(location.search).get('kolo2')) || 0; // demo: za kolik minut se „sečte“ 2. kolo
-const pred = { predictor: null, busy: false, error: null };
+const pred = { predictor: null, busy: false, error: null, saved: null };
+
+// Trvalý záznam milníků (vzniká po sčítání skriptem scripts/predikce-milniky.mjs); dokud neexistuje, přehrává se průběh z dávek ČSÚ
+fetch(`${import.meta.env.BASE_URL}data/predikce-milniky-2kolo.json`)
+  .then((r) => (r.ok ? r.json() : null))
+  .then((j) => (pred.saved = j))
+  .catch(() => null);
 
 /** Obvody, kde se (nebo se bude) hlasovat ve 2. kole: dvojice postupujících podle ČSÚ. */
 function runoffPairs() {
@@ -267,12 +273,109 @@ async function updatePredictions() {
   } finally {
     pred.busy = false;
   }
-  renderPredikce(runoffPairs());
+  try {
+    renderPredikce(runoffPairs());
+  } catch (e) {
+    console.error('Predikci se nepodařilo vykreslit', e);
+  }
 }
 
 const pct0 = (x) => `${Math.round(x)} %`;
 
+/** Vyhodnocení predikce přímo na webu: jak přesná byla při 5 / 10 / 25… % sečteného a kde jsme se mýlili (jen u už sečtených obvodů). */
+function renderVyhodnoceni(items) {
+  const el = $('vyhodnoceni-card');
+  const p = pred.predictor;
+  const done = items
+    .filter((i) => i.res && i.res.countedPct >= 0.999 && !i.official)
+    .map((i) => ({ ...i, final: i.res.currentShare, ms: p.milestones(i.o.id, i.xa.c.no, i.xb.c.no) }));
+  const pre = items.filter((i) => i.res?.countedPct >= 0.999);
+  if (!done.length && !pre.length) {
+    el.hidden = true;
+    return;
+  }
+  const pp = (x) => `${fmt1(Math.abs(x) * 100)}`;
+  const sgn = (x) => (x >= 0 ? '+' : '−');
+  const rowsT = MILESTONES.map((t) => {
+    const pts = done.map((d) => ({ d, x: d.ms.find((m) => m.prah === t) })).filter((q) => q.x);
+    if (!pts.length) return null;
+    const n = pts.length;
+    const mae = pts.reduce((s, q) => s + Math.abs(q.x.share - q.d.final), 0) / n;
+    const maeNaive = pts.reduce((s, q) => s + Math.abs(q.x.current - q.d.final), 0) / n;
+    const cover = pts.filter((q) => q.d.final >= q.x.lo && q.d.final <= q.x.hi).length;
+    const right = pts.filter((q) => (q.x.pWin > 0.5) === (q.d.final > 0.5)).length;
+    const sure = pts.filter((q) => (q.x.pWin >= 0.95 || q.x.pWin <= 0.05) && q.x.countedPct >= 0.1);
+    const sureWrong = sure.filter((q) => (q.x.pWin > 0.5) !== (q.d.final > 0.5)).length;
+    return `<tr><td>${pct0(t * 100)}</td><td>${n}</td><td><b>${pp(mae)} p. b.</b></td><td>${pp(maeNaive)} p. b.</td><td>${cover} z ${n}</td><td>${right} z ${n}</td><td>${sureWrong} z ${sure.length}</td></tr>`;
+  }).filter(Boolean);
+
+  // kde jsme se mýlili
+  const misses = [];
+  for (const d of done) {
+    const name = `${d.o.id} ${d.o.name}`;
+    for (const t of [0.1, 0.25]) {
+      const x = d.ms.find((m) => m.prah === t);
+      if (!x) continue;
+      const err = x.share - d.final;
+      const flip = (x.pWin > 0.5) !== (d.final > 0.5);
+      if (flip) misses.push({ w: 1000 + Math.abs(err), txt: `<b>${esc(name)}</b>: při ${pct0(t * 100)} sečteného jsme čekali výhru ${esc((x.pWin > 0.5 ? d.xa : d.xb).c.lastName)} (${pct0(Math.max(x.pWin, 1 - x.pWin) * 100)}), ale vyhrál ${esc((d.final > 0.5 ? d.xa : d.xb).c.lastName)}.` });
+      else if (Math.abs(err) >= 0.03) misses.push({ w: Math.abs(err), txt: `<b>${esc(name)}</b>: při ${pct0(t * 100)} sečteného jsme odhadovali ${esc(d.xa.c.lastName)} na ${fmt1(x.share * 100)} %, vyšlo ${fmt1(d.final * 100)} % (chyba ${sgn(err)}${pp(err)} p. b.).` });
+      else if (d.final < x.lo || d.final > x.hi) misses.push({ w: 0.01 + Math.abs(err) / 10, txt: `<b>${esc(name)}</b>: při ${pct0(t * 100)} sečteného vyšlo ${fmt1(d.final * 100)} % mimo náš 90% interval (${fmt1(x.lo * 100)}–${fmt1(x.hi * 100)} %).` });
+    }
+  }
+  misses.sort((a, b) => b.w - a.w);
+
+  // předběžný odhad před hlasováním vs. výsledek
+  const preRows = pre.map((i) => ({ i, win: i.res.currentShare > 0.5, p: i.fr.prob }));
+  let preHtml = '';
+  if (preRows.length) {
+    const exp = preRows.reduce((s, r) => s + r.p, 0);
+    const got = preRows.filter((r) => r.win).length;
+    const brier = preRows.reduce((s, r) => s + (r.p - (r.win ? 1 : 0)) ** 2, 0) / preRows.length;
+    const upsets = preRows.filter((r) => !r.win);
+    preHtml = `<h3 class="vy-h">Předběžný odhad před hlasováním</h3>
+      <p class="muted ro-note">V ${preRows.length} sečtených obvodech vyhrál vedoucí z 1. kola v ${got} (čekali jsme ${fmt1(exp)}). Brierovo skóre ${brier.toFixed(3)} (0 je dokonalé, 0,25 je hod mincí; zpětný test na minulých volbách čekal 0,154).${
+        upsets.length ? ` Překvapení: ${upsets.map((r) => `${esc(r.i.o.name)} (vyhrál ${esc(r.i.xb.c.lastName)}, šance vedoucího byla ${pct0(r.p * 100)})`).join(', ')}.` : ' Žádné překvapení, vedoucí z 1. kola vyhrál všude.'
+      }</p>`;
+  }
+
+  el.hidden = false;
+  el.innerHTML = `<div class="card-head"><h2 id="vyhodnoceni-h">Jak přesná predikce byla (vyhodnocuje se průběžně)</h2></div>
+    <p class="muted ro-note">Porovnání toho, co predikce tvrdila při překonání prahu sečtených okrsků v obvodu, s konečným výsledkem. Počítá se samo z obvodů, které už jsou sečtené zcela (${done.length} z ${items.length}). Prosté „dosavadní procento“ je to, co ukazují jiné weby: podíl z už sečtených hlasů.</p>
+    ${rowsT.length ? `<div class="ms-wrap"><table class="pr-ms vy-t"><thead><tr><th>Sečteno</th><th>Obvodů</th><th>Naše průměrná chyba</th><th>Prosté procento</th><th>V 90% intervalu</th><th>Vítěz správně</th><th>Jisté výroky chybně</th></tr></thead><tbody>${rowsT.join('')}</tbody></table></div>` : '<p class="muted">Zatím není žádný obvod sečtený celý.</p>'}
+    <h3 class="vy-h">Kde jsme se mýlili</h3>
+    ${misses.length ? `<ul class="vy-list">${misses.slice(0, 8).map((m) => `<li>${m.txt}</li>`).join('')}</ul>` : '<p class="muted">Zatím nic zásadního: žádný změněný favorit ani velká odchylka u dosud sečtených obvodů.</p>'}
+    ${preHtml}`;
+}
+
+/** Tabulka „co jsme říkali při 5 / 10 / 25 … % sečteného a jaká byla tehdy skutečnost“; zůstává na webu i po sečtení. */
+function milestonesHtml(obvodId, xa, xb, res) {
+  const saved = pred.saved?.obvody?.[obvodId];
+  const usable = saved && saved.konec && saved.A === xa.c.no && saved.B === xb.c.no; // uložený záznam jen u hotových obvodů, jinak živě
+  const ms = usable ? saved.milniky : pred.predictor.milestones(obvodId, xa.c.no, xb.c.no);
+  if (!ms.length) return '';
+  const done = usable ? saved.konec : res.countedPct >= 0.999 ? { share: res.currentShare } : null;
+  const hm = (t) => (t ? new Date(t).toLocaleString('cs-CZ', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+  const rows = ms
+    .map((x) => {
+      const err = done ? x.share - done.share : null;
+      return `<tr><td>${pct0(x.prah * 100)} okrsků <span class="muted">(${x.counted} z ${x.total}${x.cas ? `, ${hm(x.cas)}` : ''})</span></td>
+        <td><b>${fmt1(x.share * 100)} %</b> <span class="muted">(${fmt1(x.lo * 100)}–${fmt1(x.hi * 100)})</span></td>
+        <td>${fmt1(x.current * 100)} %</td>
+        <td>${err == null ? '' : `${err >= 0 ? '+' : '−'}${fmt1(Math.abs(err) * 100)} p. b.`}</td></tr>`;
+    })
+    .join('');
+  const end = done ? `<tr class="pr-ms-end"><td>Všechny okrsky sečteny</td><td></td><td><b>${fmt1(done.share * 100)} %</b></td><td class="muted">konečný výsledek</td></tr>` : '';
+  return `<table class="pr-ms"><caption>Jak se predikce vyvíjela: ${esc(xa.c.lastName)}</caption>
+    <thead><tr><th>Překonán práh</th><th>Naše predikce (90 % interval)</th><th>Skutečný stav tehdy</th><th>Chyba proti konci</th></tr></thead><tbody>${rows}${end}</tbody></table>`;
+}
+
 function renderPredikce(pairs) {
+  renderPredikceInner(pairs);
+  $('predikce-card').after($('vyhodnoceni-card'));
+}
+
+function renderPredikceInner(pairs) {
   const el = $('predikce-card');
   const p = pred.predictor;
   if (!pairs.length || !p) {
@@ -332,6 +435,7 @@ function renderPredikce(pairs) {
           ? `<div class="pr-verdict pr-verdict--sure"><b>${esc(res.share >= 0.5 ? fullName(xa.c, { titles: false }) : fullName(xb.c, { titles: false }))}</b> vede po sečtení všech okrsků, čeká se na potvrzení ČSÚ</div>`
           : `<div class="pr-verdict pr-verdict--${v.sure ? 'sure' : v.prob >= 0.8 ? 'likely' : 'open'}"><b>${esc(v.winner)}</b>: ${pct0(Math.min(99, v.prob * 100))} šance na zvolení, ${v.level}</div>`}`;
     }
+    if (res?.publish && !official) body += milestonesHtml(o.id, xa, xb, res);
     return `<li class="pr-item">${head}<div class="pr-body">${body}</div></li>`;
   };
 
@@ -370,6 +474,7 @@ function renderPredikce(pairs) {
       <p class="muted ro-note">Sčítání 2. kola ještě nezačalo. Odhad vychází jen z výsledku 1. kola a ze zkušenosti z minulých druhých kol (2018–2024, zpětně otestováno): vedoucí z 1. kola vyhrál zhruba ve třech ze čtyř obvodů a čím větší náskok, tím jistěji. Je to hrubý odhad, od ${pct0(MIN_SHARE * 100)} sečtených okrsků ho nahradí průběžná predikce z výsledků 2. kola.</p>
       <div class="pr-summary"><span class="muted">Očekávaný počet obvodů (součet pravděpodobností) z ${items.length}:</span> ${expHtml}</div>
       <ul class="pr-list">${rowsHtml}</ul>`;
+    renderVyhodnoceni(items);
     return;
   }
 
@@ -382,6 +487,7 @@ function renderPredikce(pairs) {
   if (pred.error) html += `<p class="muted ro-foot">Dávky okrskových výsledků se nepodařilo načíst (${esc(pred.error)}), zobrazuji poslední známý stav.</p>`;
   el.hidden = false;
   el.innerHTML = html;
+  renderVyhodnoceni(items);
 }
 
 function renderStatus() {

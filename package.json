@@ -14,7 +14,8 @@
     "data:kv": "node scripts/build-kv-data.mjs",
     "data:mesta": "node scripts/build-kv-mesta.mjs",
     "data:okrsky": "node scripts/build-okrsky-k1.mjs",
-    "predikce:lab": "node scripts/predikce-lab.mjs eval"
+    "predikce:lab": "node scripts/predikce-lab.mjs eval",
+    "predikce:milniky": "node scripts/predikce-milniky.mjs"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",

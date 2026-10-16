@@ -76,3 +76,15 @@ for (const frac of [0.1, 0.25, 0.5, 0.75]) {
   }
   console.log(`po ${upto}/${batches.length} dávkách (${Math.round(frac * 100)} %): predikce pro ${n} obvodů, RMSE ${Math.sqrt(se / n).toFixed(2)} p. b., 90% interval pokryl ${Math.round((cover / n) * 100)} %, jistých výroků ${sure}, z toho špatně ${sureWrong}`);
 }
+
+// milníky 5 / 10 / 25 % u tří obvodů (co predikce tvrdila při překonání prahu vs. skutečnost)
+console.log('\nMilníky (ukázka):');
+for (const [obvod, [c1, c2]] of [...pairs].slice(0, 3)) {
+  const [A, B] = full.leaderOfFirstRound(obvod, c1, c2);
+  const m = totals.get(obvod);
+  const T = (m[A] ?? 0) / ((m[A] ?? 0) + (m[B] ?? 0));
+  console.log(`obvod ${obvod}: konečný podíl ${(T * 100).toFixed(1)} %`);
+  for (const x of full.milestones(obvod, A, B)) {
+    console.log(`  ${Math.round(x.prah * 100)} % (okrsků ${x.counted}/${x.total}, ${x.cas ?? '?'}): predikce ${(x.share * 100).toFixed(1)} % [${(x.lo * 100).toFixed(1)}–${(x.hi * 100).toFixed(1)}], dosavadní ${(x.current * 100).toFixed(1)} %, výhra ${Math.round(x.pWin * 100)} %`);
+  }
+}

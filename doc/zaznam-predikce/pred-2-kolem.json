@@ -1,0 +1,450 @@
+{
+  "popis": "Předběžný odhad 2. kola senátních voleb 2026 PŘED začátkem hlasování. Zmrazeno, dále se neupravuje.",
+  "zmrazeno": "2026-10-16T17:49:09.641Z",
+  "dataCsuZ": "2026-10-15T15:10:22",
+  "gitCommitModelu": "cac9b2f524674ffdfe3037a1ab27582ad0538f33",
+  "vzorec": "šance vedoucího = 1 / (1 + exp(−(−0,11 + 0,225 × náskok_v_procentních_bodech))), ořezáno na 3–97 %",
+  "zdrojVzorce": "97 druhých kol senátních voleb 2018–2024 (doc/PREDIKCE.md)",
+  "obvody": [
+    {
+      "id": 3,
+      "nazev": "Cheb",
+      "vedouci": {
+        "no": 1,
+        "jmeno": "Miroslav Plevný",
+        "strana": "STAN",
+        "obhajuje": true,
+        "podil1Kolo": 40.09
+      },
+      "vyzyvatel": {
+        "no": 4,
+        "jmeno": "Sandra Tsoukernik",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 27.08
+      },
+      "naskokPb": 13.01,
+      "pravdepodobnostVyhryVedouciho": 0.944
+    },
+    {
+      "id": 6,
+      "nazev": "Louny",
+      "vedouci": {
+        "no": 5,
+        "jmeno": "Ivo Trešl",
+        "strana": "STAN",
+        "obhajuje": true,
+        "podil1Kolo": 43.5
+      },
+      "vyzyvatel": {
+        "no": 6,
+        "jmeno": "Jaroslav Mikoláš",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 25.56
+      },
+      "naskokPb": 17.94,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 9,
+      "nazev": "Plzeň-město",
+      "vedouci": {
+        "no": 5,
+        "jmeno": "Karel Řehka",
+        "strana": "STAN",
+        "obhajuje": false,
+        "podil1Kolo": 32.86
+      },
+      "vyzyvatel": {
+        "no": 7,
+        "jmeno": "Lucie Kantorová",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 27.27
+      },
+      "naskokPb": 5.6,
+      "pravdepodobnostVyhryVedouciho": 0.759
+    },
+    {
+      "id": 15,
+      "nazev": "Pelhřimov",
+      "vedouci": {
+        "no": 3,
+        "jmeno": "Ladislav Med",
+        "strana": "ODS",
+        "obhajuje": false,
+        "podil1Kolo": 30.49
+      },
+      "vyzyvatel": {
+        "no": 5,
+        "jmeno": "Michal Kozár",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 27.16
+      },
+      "naskokPb": 3.33,
+      "pravdepodobnostVyhryVedouciho": 0.654
+    },
+    {
+      "id": 18,
+      "nazev": "Příbram",
+      "vedouci": {
+        "no": 1,
+        "jmeno": "Petr Štěpánek",
+        "strana": "STAN",
+        "obhajuje": true,
+        "podil1Kolo": 43.71
+      },
+      "vyzyvatel": {
+        "no": 2,
+        "jmeno": "Barbora Daňhová",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 25.22
+      },
+      "naskokPb": 18.49,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 21,
+      "nazev": "Praha 5",
+      "vedouci": {
+        "no": 3,
+        "jmeno": "Václav Láska",
+        "strana": "SEN 21",
+        "obhajuje": true,
+        "podil1Kolo": 32.55
+      },
+      "vyzyvatel": {
+        "no": 6,
+        "jmeno": "Radko Sáblík",
+        "strana": "ODS",
+        "obhajuje": false,
+        "podil1Kolo": 27.1
+      },
+      "naskokPb": 5.45,
+      "pravdepodobnostVyhryVedouciho": 0.753
+    },
+    {
+      "id": 24,
+      "nazev": "Praha 9",
+      "vedouci": {
+        "no": 2,
+        "jmeno": "David Smoljak",
+        "strana": "STAN",
+        "obhajuje": true,
+        "podil1Kolo": 48.93
+      },
+      "vyzyvatel": {
+        "no": 5,
+        "jmeno": "Dagmar Pecková",
+        "strana": "ODS",
+        "obhajuje": false,
+        "podil1Kolo": 23.07
+      },
+      "naskokPb": 25.86,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 27,
+      "nazev": "Praha 1",
+      "vedouci": {
+        "no": 7,
+        "jmeno": "Jiří Padevět",
+        "strana": "STAN",
+        "obhajuje": false,
+        "podil1Kolo": 49.64
+      },
+      "vyzyvatel": {
+        "no": 8,
+        "jmeno": "Jan Čižinský",
+        "strana": "PRAHA SOBĚ",
+        "obhajuje": false,
+        "podil1Kolo": 27.75
+      },
+      "naskokPb": 21.89,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 30,
+      "nazev": "Kladno",
+      "vedouci": {
+        "no": 2,
+        "jmeno": "Adéla Sucharda Šípová",
+        "strana": "Piráti",
+        "obhajuje": true,
+        "podil1Kolo": 30.81
+      },
+      "vyzyvatel": {
+        "no": 5,
+        "jmeno": "Petr Paták",
+        "strana": "ODS",
+        "obhajuje": false,
+        "podil1Kolo": 29.44
+      },
+      "naskokPb": 1.36,
+      "pravdepodobnostVyhryVedouciho": 0.549
+    },
+    {
+      "id": 36,
+      "nazev": "Česká Lípa",
+      "vedouci": {
+        "no": 3,
+        "jmeno": "Jitka Volfová",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 35.05
+      },
+      "vyzyvatel": {
+        "no": 5,
+        "jmeno": "Martin Půta",
+        "strana": "SLK",
+        "obhajuje": false,
+        "podil1Kolo": 32.67
+      },
+      "naskokPb": 2.39,
+      "pravdepodobnostVyhryVedouciho": 0.605
+    },
+    {
+      "id": 42,
+      "nazev": "Kolín",
+      "vedouci": {
+        "no": 7,
+        "jmeno": "Michael Kašpar",
+        "strana": "STAN",
+        "obhajuje": false,
+        "podil1Kolo": 45.27
+      },
+      "vyzyvatel": {
+        "no": 1,
+        "jmeno": "Andrea Brzobohatá",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 25.54
+      },
+      "naskokPb": 19.73,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 45,
+      "nazev": "Hradec Králové",
+      "vedouci": {
+        "no": 7,
+        "jmeno": "Martin Dvořák",
+        "strana": "STAN",
+        "obhajuje": false,
+        "podil1Kolo": 25.13
+      },
+      "vyzyvatel": {
+        "no": 6,
+        "jmeno": "Zuzana Ceralová Petrofová",
+        "strana": "ODS",
+        "obhajuje": false,
+        "podil1Kolo": 21.94
+      },
+      "naskokPb": 3.19,
+      "pravdepodobnostVyhryVedouciho": 0.647
+    },
+    {
+      "id": 51,
+      "nazev": "Žďár nad Sázavou",
+      "vedouci": {
+        "no": 3,
+        "jmeno": "Michal Šmarda",
+        "strana": "Volt",
+        "obhajuje": false,
+        "podil1Kolo": 27.61
+      },
+      "vyzyvatel": {
+        "no": 2,
+        "jmeno": "Josef Klement",
+        "strana": "KDU-ČSL",
+        "obhajuje": true,
+        "podil1Kolo": 25.62
+      },
+      "naskokPb": 1.98,
+      "pravdepodobnostVyhryVedouciho": 0.583
+    },
+    {
+      "id": 54,
+      "nazev": "Znojmo",
+      "vedouci": {
+        "no": 2,
+        "jmeno": "Tomáš Třetina",
+        "strana": "TOP 09",
+        "obhajuje": true,
+        "podil1Kolo": 35.55
+      },
+      "vyzyvatel": {
+        "no": 3,
+        "jmeno": "Jiří Kyněra",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 22.28
+      },
+      "naskokPb": 13.27,
+      "pravdepodobnostVyhryVedouciho": 0.947
+    },
+    {
+      "id": 60,
+      "nazev": "Brno-město",
+      "vedouci": {
+        "no": 1,
+        "jmeno": "Zdeněk Papoušek",
+        "strana": "ODS",
+        "obhajuje": true,
+        "podil1Kolo": 42.09
+      },
+      "vyzyvatel": {
+        "no": 5,
+        "jmeno": "Karel Zitterbart",
+        "strana": "STAN",
+        "obhajuje": false,
+        "podil1Kolo": 24.45
+      },
+      "naskokPb": 17.63,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 63,
+      "nazev": "Přerov",
+      "vedouci": {
+        "no": 3,
+        "jmeno": "Jakub Navařík",
+        "strana": "ODS",
+        "obhajuje": false,
+        "podil1Kolo": 38.54
+      },
+      "vyzyvatel": {
+        "no": 2,
+        "jmeno": "Petr Vrána",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 37.63
+      },
+      "naskokPb": 0.91,
+      "pravdepodobnostVyhryVedouciho": 0.524
+    },
+    {
+      "id": 66,
+      "nazev": "Litovel",
+      "vedouci": {
+        "no": 5,
+        "jmeno": "Marek Ošťádal",
+        "strana": "24/7",
+        "obhajuje": true,
+        "podil1Kolo": 32.18
+      },
+      "vyzyvatel": {
+        "no": 3,
+        "jmeno": "Martin Škurek",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 28.79
+      },
+      "naskokPb": 3.39,
+      "pravdepodobnostVyhryVedouciho": 0.658
+    },
+    {
+      "id": 69,
+      "nazev": "Frýdek-Místek",
+      "vedouci": {
+        "no": 6,
+        "jmeno": "Helena Pešatová",
+        "strana": "STAN",
+        "obhajuje": true,
+        "podil1Kolo": 34.75
+      },
+      "vyzyvatel": {
+        "no": 2,
+        "jmeno": "Petr Korč",
+        "strana": "NMFM",
+        "obhajuje": false,
+        "podil1Kolo": 32.47
+      },
+      "naskokPb": 2.28,
+      "pravdepodobnostVyhryVedouciho": 0.599
+    },
+    {
+      "id": 72,
+      "nazev": "Ostrava-město",
+      "vedouci": {
+        "no": 3,
+        "jmeno": "Ondřej Šimetka",
+        "strana": "ODS",
+        "obhajuje": true,
+        "podil1Kolo": 46.75
+      },
+      "vyzyvatel": {
+        "no": 4,
+        "jmeno": "Lucie Baránková Vilamová",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 30.61
+      },
+      "naskokPb": 16.14,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 75,
+      "nazev": "Karviná",
+      "vedouci": {
+        "no": 5,
+        "jmeno": "Lenka Brzyszkowská",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 33.62
+      },
+      "vyzyvatel": {
+        "no": 7,
+        "jmeno": "Petr Kazík",
+        "strana": "OK",
+        "obhajuje": false,
+        "podil1Kolo": 14.32
+      },
+      "naskokPb": 19.3,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    },
+    {
+      "id": 78,
+      "nazev": "Zlín",
+      "vedouci": {
+        "no": 2,
+        "jmeno": "Tomáš Goláň",
+        "strana": "ODS",
+        "obhajuje": true,
+        "podil1Kolo": 33.55
+      },
+      "vyzyvatel": {
+        "no": 5,
+        "jmeno": "Ivo Mitáček",
+        "strana": "STAN",
+        "obhajuje": false,
+        "podil1Kolo": 22.84
+      },
+      "naskokPb": 10.71,
+      "pravdepodobnostVyhryVedouciho": 0.909
+    },
+    {
+      "id": 81,
+      "nazev": "Uherské Hradiště",
+      "vedouci": {
+        "no": 6,
+        "jmeno": "Josef Bazala",
+        "strana": "KDU-ČSL",
+        "obhajuje": true,
+        "podil1Kolo": 47.82
+      },
+      "vyzyvatel": {
+        "no": 4,
+        "jmeno": "Jiří Vašica",
+        "strana": "ANO",
+        "obhajuje": false,
+        "podil1Kolo": 28.35
+      },
+      "naskokPb": 19.47,
+      "pravdepodobnostVyhryVedouciho": 0.97
+    }
+  ]
+}

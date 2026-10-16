@@ -11,10 +11,12 @@ export const K2_BASE = 'https://volby.gov.cz/appdata/senat/20261009/odata/okrsky
 /** První predikci vydáme, až je sečteno aspoň tolik okrsků obvodu (a aspoň MIN_PRECINCTS okrsků). */
 export const MIN_SHARE = 0.05;
 export const MIN_PRECINCTS = 5;
+/** Při jakém podílu sečtených okrsků obvodu se zaznamená, co predikce tvrdila a jaká byla v tu chvíli skutečnost. */
+export const MILESTONES = [0.05, 0.1, 0.25, 0.5, 0.75];
 
 const attr = (s, k) => (s.match(new RegExp(`${k}="([^"]*)"`)) || [])[1];
 
-/** Rozparsuje jednu dávku okrskových výsledků: [{ id, obvod, order, V, votes: {číslo: hlasy} }] */
+/** Rozparsuje jednu dávku okrskových výsledků: [{ id, obvod, order, time, V, votes: {číslo: hlasy} }] */
 export function parseBatch(xml) {
   if (!xml || xml.includes('<CHYBA')) return [];
   const out = [];
@@ -29,6 +31,7 @@ export function parseBatch(xml) {
       id: `${attr(m[1], 'CIS_OBEC')}-${attr(m[1], 'CIS_OKRSEK')}`,
       obvod: +attr(m[1], 'CIS_OBVOD'),
       order: +attr(m[1], 'PORADI_ZPRAC'),
+      time: attr(m[1], 'DATUM_CAS_ZPRAC') ?? null,
       V: +attr(u, 'PLATNE_HLASY'),
       votes,
     });
@@ -60,6 +63,7 @@ export function indexK1(k1) {
 export function createPredictor({ k1, fetchBatch, prior = DEFAULT_PRIOR }) {
   const byObvod = k1 instanceof Map ? k1 : indexK1(k1);
   const k2 = new Map(); // id -> záznam z poslední dávky (opravený okrsek přepíše starý)
+  const batchRows = []; // dávky ve skutečném pořadí (pro přehrání milníků)
   let next = 1;
   let lastBatchAt = null;
 
@@ -78,7 +82,9 @@ export function createPredictor({ k1, fetchBatch, prior = DEFAULT_PRIOR }) {
           stop = true;
           break;
         }
-        for (const r of parseBatch(t)) k2.set(r.id, r);
+        const rows = parseBatch(t);
+        batchRows.push(rows);
+        for (const r of rows) k2.set(r.id, r);
         loaded++;
         next++;
         lastBatchAt = Date.now();
@@ -134,7 +140,51 @@ export function createPredictor({ k1, fetchBatch, prior = DEFAULT_PRIOR }) {
     return { a: A, b: B, aPct, bPct, lead: aPct - bPct, prob: preVoteProb(aPct - bPct) };
   }
 
-  return { refresh, predict, leaderOfFirstRound, firstRound, get batches() { return next - 1; }, get precincts() { return k2.size; } };
+  /**
+   * Přehraje sčítání dávku po dávce a pro každý práh (5, 10, 25… % sečtených okrsků obvodu) zaznamená, co predikce tvrdila
+   * v okamžiku, kdy byl práh překonán, a jaká byla tehdy skutečnost (dosavadní podíl ze sečtených hlasů). Nic se nedoladuje:
+   * je to stejný model a stejná data v tom pořadí, v jakém je ČSÚ vydával.
+   */
+  function milestones(obvod, A, B, thresholds = MILESTONES) {
+    const prec = byObvod.get(obvod);
+    if (!prec?.length) return [];
+    const ids = new Set(prec.map((q) => q.id));
+    const counted = new Map();
+    const out = [];
+    let ti = 0;
+    batchRows.forEach((batch, bi) => {
+      let t = null;
+      for (const r of batch) {
+        if (r.obvod !== obvod || !ids.has(r.id)) continue;
+        counted.set(r.id, { A2: r.votes[A] ?? 0, B2: r.votes[B] ?? 0 });
+        if (r.time && (!t || r.time > t)) t = r.time;
+      }
+      const frac = counted.size / prec.length;
+      while (ti < thresholds.length && frac >= thresholds[ti]) {
+        const res = predictObvod(prec.map((q) => ({ ...q })), counted, A, B, prior, 1000 + obvod);
+        if (res) {
+          out.push({
+            prah: thresholds[ti],
+            davka: bi + 1,
+            cas: t,
+            counted: res.counted,
+            total: res.total,
+            countedPct: res.countedPct,
+            share: res.share,
+            lo: res.lo,
+            hi: res.hi,
+            pWin: res.pWin,
+            current: res.currentShare,
+            publish: res.countedPct >= MIN_SHARE && res.counted >= MIN_PRECINCTS,
+          });
+        }
+        ti++;
+      }
+    });
+    return out;
+  }
+
+  return { refresh, predict, leaderOfFirstRound, firstRound, milestones, get batches() { return next - 1; }, get precincts() { return k2.size; } };
 }
 
 /**

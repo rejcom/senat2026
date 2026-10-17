@@ -287,7 +287,7 @@ function renderVyhodnoceni(items) {
   const el = $('vyhodnoceni-card');
   const p = pred.predictor;
   const done = items
-    .filter((i) => i.res && i.res.countedPct >= 0.999 && !i.official)
+    .filter((i) => i.res && i.res.countedPct >= 0.999)
     .map((i) => ({ ...i, final: i.res.currentShare, ms: p.milestones(i.o.id, i.xa.c.no, i.xb.c.no) }));
   const pre = items.filter((i) => i.res?.countedPct >= 0.999);
   if (!done.length && !pre.length) {
@@ -354,7 +354,7 @@ function milestonesHtml(obvodId, xa, xb, res) {
   const usable = saved && saved.konec && saved.A === xa.c.no && saved.B === xb.c.no; // uložený záznam jen u hotových obvodů, jinak živě
   const ms = usable ? saved.milniky : pred.predictor.milestones(obvodId, xa.c.no, xb.c.no);
   if (!ms.length) return '';
-  const done = usable ? saved.konec : res.countedPct >= 0.999 ? { share: res.currentShare } : null;
+  const done = usable ? saved.konec : res?.countedPct >= 0.999 ? { share: res.currentShare } : null;
   const hm = (t) => (t ? new Date(t).toLocaleString('cs-CZ', { weekday: 'short', hour: '2-digit', minute: '2-digit' }) : '');
   const rows = ms
     .map((x) => {
@@ -412,12 +412,21 @@ function renderPredikceInner(pairs) {
     .map((e) => `<span class="pr-fav">${chip(e.party)} <b>${e.n}</b>${e.sure < e.n ? ` <span class="muted">(z toho ${e.sure} jistě)</span>` : ''}</span>`)
     .join('');
 
-  const row = ({ o, xa, xb, res, official }) => {
+  // Co jsme říkali před sčítáním (z náskoku v 1. kole) a jak to dopadlo; zůstává i po potvrzení výsledku ČSÚ
+  const preVote = ({ xa, xb, fr }, winnerNo) => {
+    const lead = `<b>${esc(xa.c.lastName)}</b> ${pct0(fr.prob * 100)} (náskok ${fmt1(fr.lead)} p. b. v 1. kole)`;
+    if (winnerNo == null) return `<div class="pr-pre muted">Před sčítáním jsme odhadovali šanci vedoucího z 1. kola: ${lead}.</div>`;
+    const hit = winnerNo === xa.c.no;
+    const w = hit ? xa : xb;
+    return `<div class="pr-pre muted">Před sčítáním: šance vedoucího z 1. kola ${lead}. Vyhrál(a) <b>${esc(w.c.lastName)}</b>${hit ? ', vedoucí z 1. kola obstál(a), jak jsme čekali' : `. <b>Překvapení</b>: před sčítáním měl(a) jen ${pct0((1 - fr.prob) * 100)} šance`}.</div>`;
+  };
+
+  const row = ({ o, xa, xb, res, official, fr }) => {
     const nm = (x) => `${chip(x.c.party)} <b>${esc(fullName(x.c, { titles: false }))}</b>${x.c.defends ? ' <span class="badge badge--def">obhajuje</span>' : ''}`;
     const head = `<div class="pr-head"><div class="pr-ob"><b>${o.id}</b> ${esc(o.name)}</div><div class="pr-vs">${nm(xa)}<span class="ro-vs">×</span>${nm(xb)}</div></div>`;
     let body;
     if (official) {
-      body = `<span class="badge badge--won">zvolen(a)</span> ${esc(fullName(official.c, { titles: false }))} <span class="muted">potvrzeno ČSÚ</span>`;
+      body = `<span class="badge badge--won">zvolen(a)</span> ${esc(fullName(official.c, { titles: false }))} <span class="muted">potvrzeno ČSÚ</span>${preVote({ xa, xb, fr }, official.c.no)}`;
     } else if (!res) {
       body = '<span class="muted">2. kolo zatím nezačalo, nebo ještě není sečten žádný okrsek</span>';
     } else if (!res.publish) {
@@ -435,7 +444,8 @@ function renderPredikceInner(pairs) {
           ? `<div class="pr-verdict pr-verdict--sure"><b>${esc(res.share >= 0.5 ? fullName(xa.c, { titles: false }) : fullName(xb.c, { titles: false }))}</b> vede po sečtení všech okrsků, čeká se na potvrzení ČSÚ</div>`
           : `<div class="pr-verdict pr-verdict--${v.sure ? 'sure' : v.prob >= 0.8 ? 'likely' : 'open'}"><b>${esc(v.winner)}</b>: ${pct0(Math.min(99, v.prob * 100))} šance na zvolení, ${v.level}</div>`}`;
     }
-    if (res?.publish && !official) body += milestonesHtml(o.id, xa, xb, res);
+    if (!official && res) body += preVote({ xa, xb, fr }, res.countedPct >= 0.999 ? (res.currentShare > 0.5 ? xa : xb).c.no : null);
+    if (official || res?.publish) body += milestonesHtml(o.id, xa, xb, res);
     return `<li class="pr-item">${head}<div class="pr-body">${body}</div></li>`;
   };
 

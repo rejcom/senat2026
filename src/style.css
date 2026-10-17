@@ -305,6 +305,7 @@ button { font: inherit; color: inherit; }
 .pr-mark { position: absolute; top: -1px; bottom: -1px; width: 4px; margin-left: -2px; border-radius: 2px; }
 .pr-nums { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; font-size: 13px; }
 .pr-verdict { margin-top: 4px; font-size: 13.5px; }
+.pr-pre { margin-top: 4px; font-size: 12.5px; }
 .pr-verdict--sure { color: var(--good); }
 .pr-verdict--likely { color: var(--accent); }
 .pr-verdict--open { color: var(--warn); }
